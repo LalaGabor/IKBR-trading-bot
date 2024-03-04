@@ -5,6 +5,7 @@ from datetime import datetime
 import threading_manager
 import queue
 import pytz
+from bot import Bar
 
 """""""""""""""
 This file manages the creation and connection to an ibapi TWS client and the adaptation of relevant callback methods

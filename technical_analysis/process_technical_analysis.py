@@ -1,5 +1,5 @@
 from technical_analysis import EntryCalculator, DivergenceCalculator, RSICalculator
-from database import DatabaseInteraction
+from database import DatabaseManager
 import traceback
 
 

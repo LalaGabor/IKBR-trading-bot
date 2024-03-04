@@ -5,7 +5,7 @@ import pandas
 import os
 
 
-class DatabaseInteraction:
+class DatabaseManager:
 
     def __init__(self, bot):
 
