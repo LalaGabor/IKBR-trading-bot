@@ -2,7 +2,7 @@ import traceback
 from ibapi.client import EClient
 from ibapi.wrapper import EWrapper
 from datetime import datetime
-import threading
+import threading_manager
 import queue
 import pytz
 
@@ -29,16 +29,16 @@ class IBApi(EWrapper, EClient):
             # get the symbol key from the reqId value in the sym_dict dictionary
             symbol = self.bot.sym_dict[reqId]
             # for debugging print(self.bot.threading_attributes_by_symbol)
-            # Check if threading attributes for the symbol exist, if not, create them
-            ##TODO update to reference threading class object
+            # Check if threading_manager attributes for the symbol exist, if not, create them
+            ##TODO update to reference threading_manager class object
             if symbol not in self.bot.threading_attributes_by_symbol:
                 self.bot.threading_attributes_by_symbol[symbol] = {
                     'realtime_buffer': queue.Queue(),  # Buffers incoming realtime data
-                    'buffer_lock': threading.Lock(),  # Lock to alternate between realtime & historical threads
+                    'buffer_lock': threading_manager.Lock(),  # Lock to alternate between realtime & historical threads
                     'historical_data_processed': False,  # Flag to indicate data processing step
                     'realtime_priority': False  # Initialize a flag to indicate the priority
                 }
-                # print(f"added threading attributes for {symbol}")
+                # print(f"added threading_manager attributes for {symbol}")
             # Pass the reqID, bar, and False boolean (to indicate that data is historical)
             ##TODO update to reference historical data class object
             self.bot.incoming_historical_data(reqId, bar)
@@ -50,11 +50,11 @@ class IBApi(EWrapper, EClient):
         symbol = self.bot.sym_dict[reqId]
         print(f"Historical Data Request {reqId} completed from {start} to {end}")
         try:
-            ##TODO update to reference threading class object
+            ##TODO update to reference threading_manager class object
             with self.bot.threading_attributes_by_symbol[symbol]['buffer_lock']:  # set context manager using buffer lock
                 # print(self.bot.threading_attributes_by_symbol[symbol]['realtime_buffer'].queue)  # Print the
                 # contents of the queue
-                ##TODO update to reference threading class object
+                ##TODO update to reference threading_manager class object
                 if not self.bot.threading_attributes_by_symbol[symbol]['realtime_buffer'].empty():
                     while not self.bot.threading_attributes_by_symbol[symbol]['realtime_buffer'].empty():
                         ## TODO where is bar coming from?
@@ -67,7 +67,7 @@ class IBApi(EWrapper, EClient):
 
             self.bot.mysql_connector.deduplication_of_partial_historical_data(symbol)
 
-            ##TODO update to reference threading class object
+            ##TODO update to reference threading_manager class object
             # Set the flag to indicate that historical data processing is completed
             if not self.bot.threading_attributes_by_symbol[symbol]['historical_data_processed']:
                 self.bot.threading_attributes_by_symbol[symbol]['historical_data_processed'] = True
@@ -88,7 +88,7 @@ class IBApi(EWrapper, EClient):
         try:
             symbol = self.bot.sym_dict[reqId]  # get the symbol related to incoming data
             # While historical data is processing, buffer any incoming real-time data
-            ##TODO update to reference threading class object
+            ##TODO update to reference threading_manager class object
             if not self.bot.threading_attributes_by_symbol[symbol]['historical_data_processed']:
                 #print("historical data not finished yet")
                 #print(self.bot.threading_attributes_by_symbol[symbol]['historical_data_processed'])
@@ -96,7 +96,7 @@ class IBApi(EWrapper, EClient):
                 # TODO ensure that realtime data has priority on the buffer
 
                 # Lock to ensure thread safety when accessing the buffer
-                ##TODO update to reference threading class object
+                ##TODO update to reference threading_manager class object
                 with self.bot.threading_attributes_by_symbol[symbol]['buffer_lock']:
                     try:
                         time1 = datetime.fromtimestamp(time).strftime(
@@ -114,7 +114,7 @@ class IBApi(EWrapper, EClient):
                         print(f"Error buffering realtime data: {e}")
 
         # When  historical data is finished processing, process incoming real-time bars immediately
-            ##TODO update to reference threading class object
+            ##TODO update to reference threading_manager class object
             if self.bot.threading_attributes_by_symbol[symbol]['historical_data_processed']:
                 #print("historical data is finished")
                 try:

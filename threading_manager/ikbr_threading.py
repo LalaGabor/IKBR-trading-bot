@@ -1,7 +1,7 @@
 import time
 import traceback
 import queue
-import threading
+import threading_manager
 import concurrent.futures
 
 
@@ -13,7 +13,7 @@ class ThreadingManager:
             self.bot.threading_attributes_by_symbol[symbol] = {  # create a new dictionary of symbol specific
                 # dictionaries
                 'realtime_buffer': queue.Queue(),  # containing a queue
-                'buffer_lock': threading.Lock(),  # containing a lock
+                'buffer_lock': threading_manager.Lock(),  # containing a lock
                 'historical_data_processed': False,  # containing a flag
                 'realtime_priority': False  # containing a flag
             }
