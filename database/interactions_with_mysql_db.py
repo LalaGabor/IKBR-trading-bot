@@ -11,7 +11,7 @@ class DatabaseInteraction:
 
         # Store a reference to the Bot instance
         # This allows DatabaseInteraction to communicate with the Bot, especially for passing df_dict
-        self.bot = bot # store the bot's dataframe as a class variable
+        self.bot = bot
 
         # define how to make a mysql engine
         def get_mysql_engine():
