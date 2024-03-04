@@ -14,7 +14,10 @@ from threading_manager import ThreadingManager
 from order_manager_dir import OrderManager
 
 
-##TODO solve how to handle the bar class object
+##TODO get script to run
+## ImportError: cannot import name 'ThreadingManager' from partially initialized module 'ikbr_threading' (most likely due to a circular import) (C:\Users\Sebastian\PycharmProjects\IKBR-trading-bot\threading_manager\ikbr_threading.py)
+
+
 class Bar:
     first_historical_bar = True
     def __init__(self, open_, high, low, close, volume, date, tick):
