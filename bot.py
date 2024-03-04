@@ -119,3 +119,9 @@ class Bot:
         except Exception as e:
             print(f"Error in run loop: {e}")
             traceback.print_exc()
+
+
+# Start bot
+bot = Bot()
+bot.threading_manager.initialize_threading_attributes()
+bot.threading_manager.start_threads()

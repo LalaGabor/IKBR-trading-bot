@@ -11,6 +11,7 @@ from bot import Bar
 This file manages the creation and connection to an ibapi TWS client and the adaptation of relevant callback methods
 """""""""""""""
 
+
 class IBApi(EWrapper, EClient):
     def __init__(self, bot):
         # Build IBApi instance using the parent class EClient (provided in ibapi package)
