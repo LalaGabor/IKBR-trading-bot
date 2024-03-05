@@ -9,7 +9,7 @@ class RealtimeDataManager:
         # self.deduplication_of_partial_historical_data(symbol)  # deletes the row in the DB of the evaluated bar's date
         self.handle_realtime_bars(bar, symbol)
         ##TODO update reference to bot object??
-        self.bot.place_order_if_entry_conditions_met(reqID, bar, symbol)
+        self.bot.order_manager.place_order_if_entry_conditions_met(reqID, bar, symbol)
     def handle_realtime_bars(self, bar, symbol):
         # Build realtime bars based on incoming data
         self.process_realtime_bars(bar, symbol)  # Either appends a new bar or updates an existing one
@@ -32,7 +32,7 @@ class RealtimeDataManager:
                 #and not self.bar_logic_executed
             print("bar close logic triggered")
             row_number = -1
-            self.bot.ta_manager.calculate_ta_indicators(symbol, row_number)  # calculate the technical indicators
+            self.bot.technical_analysis_manager.calculate_ta_indicators(symbol, row_number)  # calculate the technical indicators
             print(f"bar processed for {symbol}")
             print(bar_time)
 
@@ -74,8 +74,8 @@ class RealtimeDataManager:
                         'is_divergence_high': 0,
                         'rsi': 0,
                         'symbol': symbol}
-            self.bot.df_dict[symbol] = pandas.concat(
-                [self.bot.df_dict[symbol], pandas.DataFrame(new_data, index=[new_index])])
+            self.bot.df_dict[symbol] = self.bot.df_dict[symbol].append(pandas.DataFrame(new_data, index=[new_index]),
+                                                                       ignore_index=True)
     def handle_buffered_realtime_data(self, reqID, bar):
 
         symbol = self.bot.sym_dict[reqID]  # Fetch the symbol corresponding to the reqID

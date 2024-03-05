@@ -1,3 +1,4 @@
+from datetime import datetime
 class Bar:
     first_historical_bar = True
     def __init__(self, open_, high, low, close, volume, date, tick):

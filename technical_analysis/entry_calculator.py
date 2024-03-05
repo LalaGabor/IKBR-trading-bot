@@ -7,9 +7,9 @@ class EntryCalculator:
         if not pandas_dataframe.empty:
             last_row = pandas_dataframe.iloc[row_number]
             if last_row['rsi'] >= 65 and last_row['is_divergence_high'] == 1:
-                pandas_dataframe['is_entry_candidate'].iloc[row_number] = 1
+                pandas_dataframe.loc[row_number, 'is_entry'] = 1
             else:
-                pandas_dataframe['is_entry_candidate'].iloc[row_number] = 0
+                pandas_dataframe.loc[row_number, 'is_entry'] = 0
 
     # Find rows which are accepted entries
     def get_entry_row(self, pandas_dataframe, row_number):

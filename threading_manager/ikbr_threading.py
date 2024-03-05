@@ -1,7 +1,7 @@
 import time
 import traceback
 import queue
-import threading_manager
+import threading
 import concurrent.futures
 
 
@@ -13,7 +13,7 @@ class ThreadingManager:
             self.bot.threading_attributes_by_symbol[symbol] = {  # create a new dictionary of symbol specific
                 # dictionaries
                 'realtime_buffer': queue.Queue(),  # containing a queue
-                'buffer_lock': threading_manager.Lock(),  # containing a lock
+                'buffer_lock': threading.Lock(),  # containing a lock
                 'historical_data_processed': False,  # containing a flag
                 'realtime_priority': False  # containing a flag
             }
@@ -34,8 +34,9 @@ class ThreadingManager:
             # Start historical and realtime threads using ThreadPoolExecutor
             all_threads = {executor.submit(self.historical_thread, symbol, i): symbol for i, symbol in
                            enumerate(self.bot.symbols, start=1)}
-            #all_threads.update({executor.submit(self.realtime_thread, symbol, i): symbol for i, symbol in
-                                #enumerate(self.symbols, start=1)})
+            ##TODO is this comment out correct?
+            all_threads.update({executor.submit(self.realtime_thread, symbol, i): symbol for i, symbol in
+                                enumerate(self.bot.symbols, start=1)})
 
             # Wait for all threads to complete
             # concurrent.futures.wait(all_threads, timeout=None, return_when=concurrent.futures.ALL_COMPLETED)

@@ -3,11 +3,21 @@ from ibapi.client import EClient
 from ibapi.wrapper import EWrapper
 from datetime import datetime
 import pytz
-from bot import Bar
+#from bot import Bar
 
 """""""""""""""
 This file manages the creation and connection to an ibapi TWS client and the adaptation of relevant callback methods
 """""""""""""""
+class Bar:
+    def __init__(self, open_, high, low, close, volume, date, tick):
+        self.open = open_
+        self.high = high
+        self.low = low
+        self.close = close
+        self.volume = volume
+        self.date = date
+        self.tick = tick
+
 
 class IBApi(EWrapper, EClient):
     def __init__(self, bot):
@@ -25,7 +35,7 @@ class IBApi(EWrapper, EClient):
         try:
             # Convert date and pass data to the Bot
             bar.date = datetime.strptime(bar.date, "%Y%m%d %H:%M:%S").astimezone(pytz.timezone("Europe/Berlin"))
-            self.bot.incoming_historical_data(reqId, bar)
+            self.bot.historical_data_manager.incoming_historical_data(reqId, bar)
         except Exception as e:
             print(e)
 
@@ -44,7 +54,7 @@ class IBApi(EWrapper, EClient):
                         ## TODO where is bar coming from?
                         reqID, bar = self.bot.threading_attributes_by_symbol[symbol]['realtime_buffer'].get()
 
-                        self.bot.handle_buffered_realtime_data(reqID, bar)
+                        self.bot.realtime_data_manager.handle_buffered_realtime_data(reqID, bar)
                         row_number = -2
                         self.bot.calculate_ta_indicators(symbol, row_number)
                         print(f"processed buffered data for {symbol}")
@@ -91,9 +101,9 @@ class IBApi(EWrapper, EClient):
                             "%Y%m%d %H:%M:%S")  # Convert to string with seconds set to 0 for grouping realtime on bar data
                         # print(f"Type of 'time': {type(time)}, Value of 'time': {time}")
                         tick = datetime.strptime(tick, "%Y%m%d %H:%M:%S").astimezone(pytz.timezone("Europe/Berlin"))
-                        # self.bot.threading_attributes_by_symbol[symbol]['realtime_buffer'].put((reqId, Bar(open_,
+                        #self.bot.threading_attributes_by_symbol[symbol]['realtime_buffer'].put((reqId, Bar(open_,
                         # high, low, close, volume, time1, tick)))
-                        #print(f"Buffered realtime data for reqId {reqId}")
+
                     except Exception as e:
                         print(f"Error buffering realtime data: {e}")
 
@@ -114,9 +124,8 @@ class IBApi(EWrapper, EClient):
                     # print(f"Type of 'time': {type(time)}, Value of 'time': {time}")
                     tick = datetime.strptime(tick, "%Y%m%d %H:%M:%S").astimezone(pytz.timezone("Europe/Berlin"))
                    # print(f"Type of 'time': {type(time)}, Value of 'time': {time}")
-                    ##TODO update to reference realtime data class object
-                    ##TODO solve reference to bar
-                    self.bot.incoming_realtime_data(reqId,
+
+                    self.bot.realtime_data_manager.incoming_realtime_data(reqId,
                                                     Bar(open_, high, low, close, volume, time1, tick))
                     #print(f"Processed realtime data for reqId {reqId}")
                 except Exception as e:

@@ -1,0 +1,1 @@
+from bar_manager import Bar

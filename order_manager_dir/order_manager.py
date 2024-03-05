@@ -3,7 +3,7 @@ class OrderManager:
     def __init__(self, bot):
         self.bot = bot
     def place_order_if_entry_conditions_met(self, reqID, bar, symbol):
-        if self.df_dict[symbol]['is_entry'].iloc[-2] == 1:
+        if self.bot.df_dict[symbol].loc[:, 'is_entry'].iloc[-2] == 1:
             # Bracket Order 2% Pro fit Target 1% Stop Loss
             profitTarget = bar.close * 1.005
             stopLoss = bar.close * 0.995
@@ -19,7 +19,7 @@ class OrderManager:
             for o in bracket:
                 o.ocaGroup = "OCA_" + str(self.bot.orderId)
                 o.ocaType = 2
-                self.ib.placeOrder(o.orderId, contract, o)
+                self.bot.ib.placeOrder(o.orderId, contract, o)
 
             self.bot.orderId += 3
             print("entered order confirmed")

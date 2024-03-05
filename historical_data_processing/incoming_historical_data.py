@@ -9,7 +9,7 @@ class HistoricalDataManager:
         symbol = self.bot.sym_dict[reqID]  # Fetch the symbol corresponding to the reqID
         self.process_historical_bars(bar, symbol)
         row_number = -1
-        self.bot.ta_manager.calculate_ta_indicators(symbol, row_number)
+        self.bot.technical_analysis_manager.calculate_ta_indicators(symbol, row_number)
 
     def process_historical_bars(self, bar, symbol):
         try:
@@ -41,8 +41,8 @@ class HistoricalDataManager:
                         'rsi': 0,
                         'symbol': symbol}
 
-            self.bot[symbol] = pandas.concat(
-                [self.bot[symbol], pandas.DataFrame(new_data, index=[new_index])]).reset_index(drop=True)
+            self.bot.df_dict[symbol].loc[new_index] = new_data
+
 
         except Exception as e:
             print(f"Error in handle_historical_bar: {e}")

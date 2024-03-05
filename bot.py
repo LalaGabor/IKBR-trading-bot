@@ -12,11 +12,17 @@ import technical_analysis
 import threading_manager
 import order_manager_dir
 from ikbr_client_dir.ikbr_client import IBApi
+##TODO Fix Divergence bug in source script
+##TODO Fix Error in handle_historical_bar: 'Bot' object is not subscriptable
+##TODO fix Error processing realtime data: 'Series' object has no attribute 'columns'
+##TODO fix Error processing realtime data: single positional indexer is out-of-bounds
+##TODO fix FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+  ##self.bot.df_dict[symbol] = pandas.concat(
 
-
-##TODO get script to run
-## ImportError: cannot import name 'ThreadingManager' from partially initialized module 'ikbr_threading' (most likely due to a circular import) (C:\Users\Sebastian\PycharmProjects\IKBR-trading-bot\threading_manager\ikbr_threading.py)
-
+# Suppression
+pandas.options.mode.chained_assignment = None  # Suppress the SettingWithCopy warning
+# Vars
+orderId = 1
 
 class Bar:
     first_historical_bar = True
@@ -64,7 +70,8 @@ class Bot:
         self.order_manager = order_manager_dir.OrderManager(self)
 
         # Connect to TWS API on init
-        self.ibapi_client.connect("127.0.0.1", 7497, 1)
+        self.ib = IBApi(self)
+        self.ib.connect("127.0.0.1", 7497, 1)
         print("Connected to Interactive Brokers")
 
         ## TODO move this to threading manager
