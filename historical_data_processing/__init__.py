@@ -1,1 +1,1 @@
-from incoming_historical_data import HistoricalDataManager
+from .incoming_historical_data import HistoricalDataManager

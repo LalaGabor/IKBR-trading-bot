@@ -2,15 +2,12 @@ import traceback
 from ibapi.client import EClient
 from ibapi.wrapper import EWrapper
 from datetime import datetime
-import threading_manager
-import queue
 import pytz
 from bot import Bar
 
 """""""""""""""
 This file manages the creation and connection to an ibapi TWS client and the adaptation of relevant callback methods
 """""""""""""""
-
 
 class IBApi(EWrapper, EClient):
     def __init__(self, bot):
@@ -28,21 +25,6 @@ class IBApi(EWrapper, EClient):
         try:
             # Convert date and pass data to the Bot
             bar.date = datetime.strptime(bar.date, "%Y%m%d %H:%M:%S").astimezone(pytz.timezone("Europe/Berlin"))
-            # get the symbol key from the reqId value in the sym_dict dictionary
-            symbol = self.bot.sym_dict[reqId]
-            # for debugging print(self.bot.threading_attributes_by_symbol)
-            # Check if threading_manager attributes for the symbol exist, if not, create them
-            ##TODO update to reference threading_manager class object
-            if symbol not in self.bot.threading_attributes_by_symbol:
-                self.bot.threading_attributes_by_symbol[symbol] = {
-                    'realtime_buffer': queue.Queue(),  # Buffers incoming realtime data
-                    'buffer_lock': threading_manager.Lock(),  # Lock to alternate between realtime & historical threads
-                    'historical_data_processed': False,  # Flag to indicate data processing step
-                    'realtime_priority': False  # Initialize a flag to indicate the priority
-                }
-                # print(f"added threading_manager attributes for {symbol}")
-            # Pass the reqID, bar, and False boolean (to indicate that data is historical)
-            ##TODO update to reference historical data class object
             self.bot.incoming_historical_data(reqId, bar)
         except Exception as e:
             print(e)

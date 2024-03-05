@@ -1,17 +1,17 @@
-import datetime
+from datetime import datetime
 import traceback
 import pytz
-from ikbr_client import IBApi
 import threading
 import time
 import pandas
 from ibapi.contract import Contract
-from database import DatabaseManager
-from historical_data_processing import HistoricalDataManager
-from realtime_data_processing import RealtimeDataManager
-from technical_analysis import TechnicalAnalysisProcessor
-from threading_manager import ThreadingManager
-from order_manager_dir import OrderManager
+import database
+import historical_data_processing
+import realtime_data_processing
+import technical_analysis
+import threading_manager
+import order_manager_dir
+from ikbr_client_dir.ikbr_client import IBApi
 
 
 ##TODO get script to run
@@ -47,21 +47,21 @@ class Bot:
 
     # what is automatically run when an instance of the class is created
     def __init__(self):
-        # initialize a DatabaseManager object, pass bot instance to object on init
+        # initialize a DatabaseManager o bject, pass bot instance to object on init
         # this object creates an engine that connects to local DB on init
-        self.mysql_connector = DatabaseManager(self)
+        self.mysql_connector = database.DatabaseManager(self)
         # initialize an IBAPI object, pass bot instance to object on init
         self.ibapi_client = IBApi(self)
         # initialize a ThreadingManager object, pass bot instance to object on init
-        self.threading_manager = ThreadingManager(self)
+        self.threading_manager = threading_manager.ThreadingManager(self)
         # initialize a HistoricalDataManager object, pass bot instance to object on init
-        self.historical_data_manager = HistoricalDataManager(self)
+        self.historical_data_manager = historical_data_processing.HistoricalDataManager(self)
         # initialize a RealtimeDataManager object, pass bot instance to object on init
-        self.realtime_data_manager = RealtimeDataManager(self)
+        self.realtime_data_manager = realtime_data_processing.RealtimeDataManager(self)
         # initialize a TechnicalAnalysisProcessor object, pass bot instance to object on init
-        self.technical_analysis_manager = TechnicalAnalysisProcessor(self)
+        self.technical_analysis_manager = technical_analysis.TechnicalAnalysisProcessor(self)
         # initialize an OrderManager object, pass bot instance to object on init
-        self.order_manager = OrderManager(self)
+        self.order_manager = order_manager_dir.OrderManager(self)
 
         # Connect to TWS API on init
         self.ibapi_client.connect("127.0.0.1", 7497, 1)

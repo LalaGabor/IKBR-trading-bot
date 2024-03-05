@@ -1,1 +1,2 @@
-from ikbr_threading import ThreadingManager
+from .ikbr_threading import ThreadingManager
+
