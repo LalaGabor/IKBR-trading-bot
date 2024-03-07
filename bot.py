@@ -15,8 +15,7 @@ from ikbr_client_dir.ikbr_client import IBApi
 
 
 ##TODO Fix Divergence bug in source script
-##TODO fix FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
-##TODO Alter old rows to show divergence open candidate in DB
+##TODO Divergence Opens do not deactivate old opens fast enough? Check with backtest scripts for required logic
 
 # Suppression
 pandas.options.mode.chained_assignment = None  # Suppress the SettingWithCopy warning

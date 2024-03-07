@@ -47,9 +47,15 @@ class DivergenceCalculator:
                             variable = divergence_candidates[-1]
                             pandas_dataframe.loc[pandas_dataframe.index[row_number],'paired_divergence_opens_id'] = int(variable + 1)
                             variable3 = pandas_dataframe['Close'].loc[int(variable)]
-                            pandas_dataframe.loc[pandas_dataframe.index[row_number],'paired_divergence_opens_closing_price'] = float(variable3)
+                            pandas_dataframe.loc[pandas_dataframe.index[row_number],
+                                                 'paired_divergence_opens_closing_price'] = int(float(variable3))
                             variable5 = pandas_dataframe['rsi'].loc[int(variable)]
-                            pandas_dataframe.loc[pandas_dataframe.index[row_number],'paired_divergence_opens_rsi'] = float(variable5)
+                            #pandas_dataframe.loc[pandas_dataframe.index[row_number],'paired_divergence_opens_rsi'] =
+                            # float(variable5)
+                            pandas_dataframe.loc[
+                                pandas_dataframe.index[row_number], 'paired_divergence_opens_rsi'] = int(
+                                float(variable5))
+
                     except IndexError:
                         print("No occurrence with is_divergence_open_candidate == 1 in the last 61 rows")
                     except Exception as e:
