@@ -146,3 +146,32 @@ class DatabaseManager:
                     print(f"Table {table_name} not found")
         except Exception as ex:
             print(f"Error dropping tables: {ex}")
+
+    def update_open_candidate_row(self, symbol, row_number):
+        try:
+            table_name = f"bot_{symbol.lower()}_debug"  # find debugging tables' name
+
+            # ensure source dataframe is long enough
+            if len(self.bot.df_dict[symbol]) < 12:
+                pass
+
+            # else delete duplicate row
+            else:
+                update_row = self.bot.df_dict[symbol].iloc[row_number - 5]  # get the latest row (for deduplication)
+                update_query = f"UPDATE `trading_bot_debug`.`{table_name}` " \
+                               f"SET `is_divergence_open_candidate` = {update_row['is_divergence_open_candidate']} " \
+                               f" WHERE `Date` = '{update_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}'"
+
+                try:
+                    cursor = self.conn.cursor()
+                    cursor.execute(update_query, params=None, multi=False)
+                    self.conn.commit()
+                    cursor.close()
+                    #print(f"updated _is_divergence_open_candidate_ at timestamp: {update_row['Date']}")
+
+                except Exception as ex:
+                    print(f"Error executing update query: {ex}")
+                    traceback.print_exc()
+
+        except Exception as e:
+            print(f"Error: {e}")

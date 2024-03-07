@@ -45,7 +45,7 @@ class Bot:
     df_dict = {}  # Dictionary to store DataFrames for each symbol
     reqID = 1
     global orderId
-    symbols = ["ENEL"]#, "ENI", "ISP", "UCG", "G", "PIRC", "SPM", "UNI", "BAMI", "LDO"]
+    symbols = ["ENEL", "ENI", "ISP", "UCG", "G", "PIRC", "SPM", "UNI", "BAMI", "LDO"]
     initial_bar_time = datetime.now().astimezone(pytz.timezone("Europe/Berlin"))
     sym_dict = {} # stores a symbol, reqID pair
     mysql_engine = None  # Declare mysql_engine as a class variable

@@ -47,7 +47,6 @@ class TechnicalAnalysisProcessor:
             print(f"Error in calculate_divergence: {e}")
             traceback.print_exc()
 
-        """
         # Find the entry candidates, rows that meet strategy criteria
         try:
             self.entry_calc.get_entry_candidates(self.bot.df_dict[symbol], row_number)
@@ -61,10 +60,9 @@ class TechnicalAnalysisProcessor:
         except Exception as e:
             print(f"Error in calculate_divergence: {e}")
             traceback.print_exc()
-        """
 
-        # Append the incoming row
-        incoming_row = self.bot.df_dict[symbol].iloc[row_number]# Define the incoming row
+        # Define the incoming row
+        incoming_row = self.bot.df_dict[symbol].iloc[row_number]
 
         # Use the bots inited connector object to append to the database
         try:
@@ -72,4 +70,11 @@ class TechnicalAnalysisProcessor:
         except Exception as e:
             print(f"Error in appending data to mysql: {e}")
             traceback.print_exc()
-        print(f"dataframe after append: {self.bot.df_dict[symbol]}")
+
+        # Use a mysql-connector cursor object to update the relevant row in DB for "is_divergence_open_candidate"
+        try:
+            self.bot.mysql_connector.update_open_candidate_row(symbol, row_number)
+        except Exception as e:
+            print(f"Error in updating is_divergence_open_candidate: {e}")
+            traceback.print_exc()
+

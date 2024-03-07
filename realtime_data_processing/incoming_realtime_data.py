@@ -23,10 +23,6 @@ class RealtimeDataManager:
         # TODO later, alter this logic for 30min bars. It will be minutes == 29/59 and seconds == 55
         if bar_time.second == 55:
             print("bar close logic triggered")
-            #TODO check if dataframe stores duplicates
-            print(f" print all rows in dataframe where 'Tick' column equals the closing tick: "
-                  f"{self.bot.df_dict[symbol][self.bot.df_dict[symbol]['Tick'] == bar_time]}") # checks if there are
-            # any  duplicates in dataframe
             row_number = -1
             self.bot.mysql_connector.deduplication_of_partial_historical_data(symbol)
             self.bot.technical_analysis_manager.calculate_ta_indicators(symbol, row_number)  # calculate the technical indicators
