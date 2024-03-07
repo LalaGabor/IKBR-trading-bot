@@ -3,7 +3,7 @@ import traceback
 import queue
 import threading
 import concurrent.futures
-
+from datetime import datetime
 
 class ThreadingManager:
     def __init__(self, bot):
@@ -17,16 +17,15 @@ class ThreadingManager:
                 'historical_data_processed': False,  # containing a flag
                 'realtime_priority': False  # containing a flag
             }
-
     def start_threads(self):
-        current_seconds = time.localtime().tm_sec
-
+        current_seconds = datetime.now().second
+        ##TODO remove? As solved with deduplication?
         # this conditional is a "lazy" workaround to the issue that starting the script in during the last tick
         # causes duplication issues
-        if current_seconds in range(53, 60) or current_seconds in range(0, 3):
+        if current_seconds in range(0, 2):
             # Calculate the remaining seconds until the next acceptable time (03 seconds)
-            remaining_seconds = (3 - current_seconds) % 60
-
+            remaining_seconds = (3 - current_seconds)
+            print(f"remaining_seconds are {remaining_seconds}")
             # Wait for the remaining seconds
             time.sleep(remaining_seconds)
 
@@ -34,10 +33,10 @@ class ThreadingManager:
             # Start historical and realtime threads using ThreadPoolExecutor
             all_threads = {executor.submit(self.historical_thread, symbol, i): symbol for i, symbol in
                            enumerate(self.bot.symbols, start=1)}
-            ##TODO is this comment out correct?
+            print(f"started historical thread at {datetime.now()}")
             all_threads.update({executor.submit(self.realtime_thread, symbol, i): symbol for i, symbol in
                                 enumerate(self.bot.symbols, start=1)})
-
+            print(f"started realtime thread at {datetime.now()}")
             # Wait for all threads to complete
             # concurrent.futures.wait(all_threads, timeout=None, return_when=concurrent.futures.ALL_COMPLETED)
 

@@ -1,16 +1,17 @@
 import pandas
 import traceback
 
+pandas.options.mode.chained_assignment = None  # Suppress the SettingWithCopy warning
+
 
 class HistoricalDataManager:
     def __init__(self, bot):
        self.bot = bot
     def incoming_historical_data(self, reqID, bar):
-        symbol = self.bot.sym_dict[reqID]  # Fetch the symbol corresponding to the reqID
+        symbol = self.bot.sym_dict[reqID]# Fetch the symbol corresponding to the reqID
         self.process_historical_bars(bar, symbol)
         row_number = -1
         self.bot.technical_analysis_manager.calculate_ta_indicators(symbol, row_number)
-
     def process_historical_bars(self, bar, symbol):
         try:
             if self.bot.df_dict[symbol].empty:

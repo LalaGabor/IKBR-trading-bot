@@ -1,4 +1,5 @@
 import pandas
+from datetime import datetime
 
 class RealtimeDataManager:
     def __init__(self, bot):
@@ -13,31 +14,26 @@ class RealtimeDataManager:
     def handle_realtime_bars(self, bar, symbol):
         # Build realtime bars based on incoming data
         self.process_realtime_bars(bar, symbol)  # Either appends a new bar or updates an existing one
-        # print(f"now is {datetime.now()}")
         # Store bar time of the incoming bar for logical handling of bar closes
         bar_time = bar.tick
-
-        # print(f" incoming bar's time is {bar_time}, previous bar is {self.df_dict[symbol]['Date'].iloc[-2]}")  # for
-        # debugging
-        #minutes_diff = (bar_time - self.df_dict[symbol]['Date'].iloc[-2]).total_seconds() / 60.0
-        # gets the difference in
-        # seconds between the incoming bar and the script start time (later updated to last processed time),
-        # then converts it to minutes
-        # print(self.df_dict[symbol]['symbol'].iloc[-1], " ", minutes_diff)
         self.bar_logic_executed = False  # ensure the following conditional is only triggered once
-
+        print(f"bar tick is {bar_time}")
+        print(f"now is {datetime.now()}")
         # On realtime Bar Close, perform the following...
         # TODO later, alter this logic for 30min bars. It will be minutes == 29/59 and seconds == 55
         if bar_time.second == 55:
-                #and not self.bar_logic_executed
             print("bar close logic triggered")
+            #TODO check if dataframe stores duplicates
+            print(f" print all rows in dataframe where 'Tick' column equals the closing tick: "
+                  f"{self.bot.df_dict[symbol][self.bot.df_dict[symbol]['Tick'] == bar_time]}") # checks if there are
+            # any  duplicates in dataframe
             row_number = -1
+            self.bot.mysql_connector.deduplication_of_partial_historical_data(symbol)
             self.bot.technical_analysis_manager.calculate_ta_indicators(symbol, row_number)  # calculate the technical indicators
             print(f"bar processed for {symbol}")
-            print(bar_time)
-
             # Set the flag to True to ensure the logic is executed only once per bar
             self.bar_logic_executed = True
+
     def process_realtime_bars(self, bar, symbol):
         # Check which rows in the Date column of the dataframe of the symbol are equal to incoming bar's date
         incoming_bars_date = self.bot.df_dict[symbol]['Date'] == bar.date
@@ -48,13 +44,13 @@ class RealtimeDataManager:
             # are equal to incoming bar's date, then:
             update_index = self.bot.df_dict[symbol].index[incoming_bars_date][-1]  # set update_index equal \
             # to the row of a matched date
-            # self.df_dict[symbol].loc[update_index, 'Open'] = bar.open
+            # Don't append open, only use the first ticks open
             self.bot.df_dict[symbol].loc[update_index, 'High'] = max(bar.high,
                                                                  self.bot.df_dict[symbol].loc[update_index, 'High'])
             self.bot.df_dict[symbol].loc[update_index, 'Low'] = min(bar.low,
                                                                 self.bot.df_dict[symbol].loc[update_index, 'Low'])
             self.bot.df_dict[symbol].loc[update_index, 'Close'] = bar.close
-            self.bot.df_dict[symbol].loc[update_index, 'Volume'] += bar.volume
+            self.bot.df_dict[symbol].loc[update_index, 'Volume'] += bar.volume  # Add the volume
             self.bot.df_dict[symbol].loc[update_index, 'Date'] = bar.date
             self.bot.df_dict[symbol].loc[update_index, 'Tick'] = bar.tick
         # Else append a new row for the current date
@@ -74,8 +70,8 @@ class RealtimeDataManager:
                         'is_divergence_high': 0,
                         'rsi': 0,
                         'symbol': symbol}
-            self.bot.df_dict[symbol] = self.bot.df_dict[symbol].append(pandas.DataFrame(new_data, index=[new_index]),
-                                                                       ignore_index=True)
+
+            self.bot.df_dict[symbol] = pandas.concat([self.bot.df_dict[symbol], pandas.DataFrame(new_data, index=[new_index])], ignore_index=True)
     def handle_buffered_realtime_data(self, reqID, bar):
 
         symbol = self.bot.sym_dict[reqID]  # Fetch the symbol corresponding to the reqID

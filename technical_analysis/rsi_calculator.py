@@ -1,4 +1,5 @@
 import ta
+from ta.momentum import rsi
 
 class RSICalculator:
 
