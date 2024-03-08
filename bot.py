@@ -135,7 +135,7 @@ class Bot:
             print(f"Error in starting listener run_loop: {e}")
             traceback.print_exc()
 
-
+#TODO add if name == main conditional
 # Start bot, this opens connection to TWS API
 bot = Bot()
 # Get required attributes to start incoming data threads
