@@ -4,41 +4,61 @@ import queue
 import threading
 import concurrent.futures
 from datetime import datetime
+import pytz
 
+
+# Manages threads for incoming data
 class ThreadingManager:
     def __init__(self, bot):
-        self.bot = bot
-    def initialize_threading_attributes(self):
-        for symbol in self.bot.symbols:  # for each symbol, reqID key/value pair in sym_dict....
-            self.bot.threading_attributes_by_symbol[symbol] = {  # create a new dictionary of symbol specific
-                # dictionaries
-                'realtime_buffer': queue.Queue(),  # containing a queue
-                'buffer_lock': threading.Lock(),  # containing a lock
-                'historical_data_processed': False,  # containing a flag
-                'realtime_priority': False  # containing a flag
-            }
-    def start_threads(self):
-        current_seconds = datetime.now().second
-        ##TODO remove? As solved with deduplication?
-        # this conditional is a "lazy" workaround to the issue that starting the script in during the last tick
-        # causes duplication issues
-        if current_seconds in range(0, 2):
-            # Calculate the remaining seconds until the next acceptable time (03 seconds)
-            remaining_seconds = (3 - current_seconds)
-            print(f"remaining_seconds are {remaining_seconds}")
-            # Wait for the remaining seconds
-            time.sleep(remaining_seconds)
+        try:
+            self.bot = bot  # Communicate with bot instance
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=2 * len(self.bot.symbols)) as executor:
-            # Start historical and realtime threads using ThreadPoolExecutor
-            all_threads = {executor.submit(self.historical_thread, symbol, i): symbol for i, symbol in
-                           enumerate(self.bot.symbols, start=1)}
-            print(f"started historical thread at {datetime.now()}")
-            all_threads.update({executor.submit(self.realtime_thread, symbol, i): symbol for i, symbol in
-                                enumerate(self.bot.symbols, start=1)})
-            print(f"started realtime thread at {datetime.now()}")
-            # Wait for all threads to complete
-            # concurrent.futures.wait(all_threads, timeout=None, return_when=concurrent.futures.ALL_COMPLETED)
+            self.thread_start_time = datetime.now()
+
+            self.start_time_causing_issues = 0
+
+        except Exception as e:
+            print(f"Error with initializing ThreadingManager: {e}")
+            traceback.print_exc()
+
+    # Threading attributes are required to be defined before initializing threads
+    def initialize_threading_attributes(self):
+        try:
+            for symbol in self.bot.symbols:  # for each symbol, reqID key/value pair in sym_dict....
+                self.bot.threading_attributes_by_symbol[symbol] = {  # create a new dictionary of symbol specific
+                    # dictionaries
+                    'realtime_buffer': queue.Queue(),  # containing a queue
+                    'buffer_lock': threading.Lock(),  # containing a lock
+                    'historical_data_processed': False,  # containing a flag
+                    'realtime_priority': False  # containing a flag
+                }
+        except Exception as e:
+            print(f"Error with initializing ThreadingManager: {e}")
+            traceback.print_exc()
+
+    def start_threads(self):
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2 * len(self.bot.symbols)) as executor:
+
+                # Start historical and realtime threads using ThreadPoolExecutor
+                all_threads = {executor.submit(self.historical_thread, symbol, i): symbol for i, symbol in
+                               enumerate(self.bot.symbols, start=1)}
+                print(f"started historical thread at {datetime.now()}")
+
+                all_threads.update({executor.submit(self.realtime_thread, symbol, i): symbol for i, symbol in
+                                    enumerate(self.bot.symbols, start=1)})
+                print(f"started realtime thread at {datetime.now()}")
+
+                self.thread_start_time = datetime.now(pytz.timezone("Europe/Berlin"))
+
+                # Conditional checks if a tick arrived before start of thread time (which causes duplication issues)
+                if self.thread_start_time.second in range (0,6):
+                    self.start_time_causing_issues = 1
+                    print(f" causing issues? {self.start_time_causing_issues}")
+
+        except Exception as e:
+            print(f"Error with start_threads: {e}")
+            traceback.print_exc()
 
     def historical_thread(self, symbol, reqID):
         try:
@@ -49,6 +69,7 @@ class ThreadingManager:
             print(f"started historical thread for symbol {symbol}")
         except Exception as e:
             print(f"Exception in historical_thread for symbol {symbol}, reqID {reqID}: {e}")
+        traceback.print_exc()
 
     def realtime_thread(self, symbol, reqID):
         try:

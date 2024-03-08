@@ -17,73 +17,93 @@ query to DB.
 class DatabaseManager:
 
     def __init__(self, bot):
-
-        # using mysqlconnector due to sqlalchemy bug, see Notes
-        self.conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="VZe1x2sF1HTyLp9r27Ka",
-            database="trading_bot_debug"
-        )
-
-        # Store a reference to the Bot instance
-        # This allows DatabaseInteraction to communicate with the Bot, especially for passing df_dict
-        self.bot = bot
-
-        # make a mysql engine
         try:
-            self.mysql_engine = self.get_mysql_engine()
-            print("Connected to MySQL database using SQLAlchemy")
-        except Exception as ex:
-            print("Error creating MySQL engine:", ex)
+            # using mysqlconnector due to sqlalchemy bug, see Notes
+            self.conn = mysql.connector.connect(
+                host="localhost",
+                user="root",
+                password="VZe1x2sF1HTyLp9r27Ka",
+                database="trading_bot_debug"
+            )
 
-        # Comment the following line to NOT drop tables
-        self.drop_tables_if_exist()
+            # Store a reference to the Bot instance
+            # This allows DatabaseInteraction to communicate with the Bot, especially for passing df_dict
+            self.bot = bot
 
-        self.delete_partial = False  # flag for deletion of last row in historical data export (deduplication)
+            # make a mysql engine
+            try:
+                self.mysql_engine = self.get_mysql_engine()
+                print("Connected to MySQL database using SQLAlchemy")
+            except Exception as ex:
+                print("Error creating MySQL engine:", ex)
 
+            # Comment the following line to NOT drop tables
+            self.drop_tables_if_exist()
+
+            self.delete_partial = 0  # flag for deletion of last row in historical data export (deduplication)
+
+        except Exception as e:
+            print(f"Error initializing Database Manager object: {e}")
+            traceback.print_exc()
     # define how to make a mysql engine
     def get_mysql_engine(self):
-        user = 'root'
-        password = 'VZe1x2sF1HTyLp9r27Ka'
-        host = 'localhost'
-        port = 3306
-        database = 'trading_bot_debug'
-        engine = create_engine(f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}")
-        # Specify the authentication plugin in the connection string
-        #engine = create_engine(
-            #f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}?auth_plugin=mysql_native_password")
-        return engine
-
+        try:
+            user = 'root'
+            password = 'VZe1x2sF1HTyLp9r27Ka'
+            host = 'localhost'
+            port = 3306
+            database = 'trading_bot_debug'
+            engine = create_engine(f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}")
+            # Specify the authentication plugin in the connection string
+            #engine = create_engine(
+                #f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}?auth_plugin=mysql_native_password")
+            return engine
+        except Exception as e:
+            print(f"Error creating mysql engine: {e}")
+            traceback.print_exc()
     # the last bar of historical data and first bar of realtime data are the same tick, causing a duplication issue
     # this function solves that issue in the DB
-    def deduplication_of_partial_historical_data(self, symbol):
+    def deduplication_of_partial_historical_data(self, symbol, row_number):
+        try:
+            table_name = f"bot_{symbol.lower()}_debug"  # find debugging tables' name
 
-        table_name = f"bot_{symbol.lower()}_debug"  # find debugging tables' name
+            # ensure source dataframe is not empty
+            if len(self.bot.df_dict[symbol]) < 1:
+                pass
 
-        # ensure source dataframe is not empty
-        if len(self.bot.df_dict[symbol]) < 1:
-            pass
+            # else delete duplicate row
+            else:
 
-        # else delete duplicate row
-        else:
-            last_row = self.bot.df_dict[symbol].iloc[-1]  # get the latest row (for deduplication)
+                last_row = self.bot.df_dict[symbol].iloc[row_number]  # get the latest row (for deduplication)
+                print(f"the row being checked for duplicates is: {last_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}")
+                if self.delete_partial < 2:
+                    # Drop the row from the database where date matches the incoming (duplicate) row's date
 
-            if not self.delete_partial:
-                # Drop the row from the database where date matches the incoming (duplicate) row's date
+                    delete_query = f"""
+                                    DELETE FROM `trading_bot_debug`.`{table_name}`
+                                    WHERE 1=1
+                                    AND year(`Date`)  = year('{last_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}')
+                                    AND month(`Date`) = month('{last_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}')
+                                    AND day(`Date`) = day('{last_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}')
+                                    AND hour(`Date`) = hour('{last_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}')
+                                    AND minute(`Date`) = minute('{last_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}')
+                                    """
+                    print(f"check if delete is being triggered correctly")
 
-                delete_query = f"DELETE FROM `trading_bot_debug`.`{table_name}` WHERE `Date` = '{last_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}'"
+                    # use a cursor to pass the delete_query to the DB
+                    try:
+                        cursor = self.conn.cursor()
+                        cursor.execute(delete_query, params=None, multi=False)
+                        self.conn.commit()
+                        cursor.close()
+                        self.delete_partial += 1  # increment flag to only deduplicate first rows
+                    except Exception as ex:
+                        print(f"Error executing delete query: {ex}")
+                        traceback.print_exc()
 
-                try:
-                    cursor = self.conn.cursor()
-                    cursor.execute(delete_query, params=None, multi=False)
-                    self.conn.commit()
-                    cursor.close()
-                    self.delete_partial = True
-                except Exception as ex:
-                    print(f"Error executing delete query: {ex}")
-                    traceback.print_exc()
-
+        except Exception as ex:
+            print(f"Error deduplicating data: {ex}")
+            traceback.print_exc()
     # append the incoming data (initially stored in dataframe) to the mysql table
     def append_data_to_mysql(self, incoming_row, symbol):
         try:
@@ -94,8 +114,8 @@ class DatabaseManager:
             incoming_row['Date'] = pandas.to_datetime(incoming_row['Date'])
 
             # Force last_row to be a DataFrame
-            # Force the Dataframe to have the specified columns, otherwise the index is included,
-            # which sql table does not expect
+            # Force the Dataframe to have the specified columns, otherwise the index is included,...
+            # ...which sql table does not expect
             if not isinstance(incoming_row, pandas.DataFrame):
                 last_row = pandas.DataFrame([incoming_row], columns=['Open', 'High', 'Low', 'Close', 'Volume', 'Date',
                                                                  'is_divergence_open_candidate',
@@ -129,12 +149,15 @@ class DatabaseManager:
                 with self.mysql_engine.connect() as connection:
                     last_row.to_sql(table_name, connection, if_exists='append', index=False, schema="trading_bot_debug")
             except Exception as e:
-                print(f"Error: {e}")
+                print(f"Error executing append query: {e}")
+                traceback.print_exc()
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error appending data: {e}")
+            traceback.print_exc()
+    # Drop tables from database on script start (assuming you dont want history stored), see flag in main
     def drop_tables_if_exist(self):
         try:
-            metadata = MetaData()
+            metadata = MetaData()  # get a metadata object to execute a drop query in DB
             metadata.reflect(bind=self.mysql_engine)
             for symbol in self.bot.symbols:
                 table_name = f"bot_{symbol.lower()}_debug"
@@ -146,7 +169,9 @@ class DatabaseManager:
                     print(f"Table {table_name} not found")
         except Exception as ex:
             print(f"Error dropping tables: {ex}")
-
+            traceback.print_exc()
+    # rows are processed as the come in and thus appended. Some functions though will update previous rows in
+    # dataframe and this updates those rows in the DB
     def update_open_candidate_row(self, symbol, row_number):
         try:
             table_name = f"bot_{symbol.lower()}_debug"  # find debugging tables' name
@@ -162,16 +187,16 @@ class DatabaseManager:
                                f"SET `is_divergence_open_candidate` = {update_row['is_divergence_open_candidate']} " \
                                f" WHERE `Date` = '{update_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}'"
 
+                # use a cursor to pass the delete_query to the DB
                 try:
                     cursor = self.conn.cursor()
                     cursor.execute(update_query, params=None, multi=False)
                     self.conn.commit()
                     cursor.close()
-                    #print(f"updated _is_divergence_open_candidate_ at timestamp: {update_row['Date']}")
-
                 except Exception as ex:
                     print(f"Error executing update query: {ex}")
                     traceback.print_exc()
 
         except Exception as e:
             print(f"Error: {e}")
+            traceback.print_exc()

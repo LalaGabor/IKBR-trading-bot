@@ -4,6 +4,7 @@ import numpy
 
 pandas.options.mode.chained_assignment = None  # Suppress the SettingWithCopy warning
 
+
 class DivergenceCalculator:
 
     # function purpose: does the evaluated row potentially "open" a divergence, by being a local peak
@@ -14,8 +15,10 @@ class DivergenceCalculator:
             if len(pandas_dataframe) >= 11 and pandas_dataframe['rsi'].iloc[row_number - 5] >= 70:
                 # store the evaluated closing price
                 evaluated_closing_price = pandas_dataframe.loc[pandas_dataframe.index[row_number - 5], 'Close']
+
                 if not pandas.notna(evaluated_closing_price) or not numpy.isfinite(evaluated_closing_price).all():
                     raise ValueError("Evaluated closing price is not a valid number")
+
                 # check if the evaluated closing price is strictly greater than the closing price of the 5 preceding
                 # & 5 succeeding rows
                 if all((evaluated_closing_price > pandas_dataframe.loc[pandas_dataframe.index[i], 'Close']).all() for i in
@@ -24,16 +27,20 @@ class DivergenceCalculator:
                     range(row_number - 6, row_number - 11, -1)):
                     # if yes, set divergence candidate open = 1
                     pandas_dataframe.loc[pandas_dataframe.index[row_number - 5], 'is_divergence_open_candidate'] = 1
+
                 else:
                     # if not, set the divergence candidate open = 0
                     pandas_dataframe.loc[pandas_dataframe.index[row_number - 5], 'is_divergence_open_candidate'] = 0
                     return
+
             pandas_dataframe['is_divergence_open_candidate'] = pandas_dataframe['is_divergence_open_candidate'].astype(
                 int)
+
         except Exception as e:
             print(f"Error in get_open_candidate: {e}")
             traceback.print_exc()
 
+    @staticmethod
     def get_close_candidates_nearest_open(self, pandas_dataframe, row_number):
         try:
             if not pandas_dataframe.empty:
@@ -61,31 +68,37 @@ class DivergenceCalculator:
                     except Exception as e:
                         print(f"Error: {e}")
         except Exception as e:
+            print(f"Error in get_close_candidates_nearest_open: {e}")
             traceback.print_exc()
-
+    @staticmethod
     def limit_divergence_to_accepted_row(self, pandas_dataframe, row_number):
         try:
             if len(pandas_dataframe) >= 11:
                 # Check if 'is_divergence_open_candidate' is 1 in the current row or the previous 5 rows
                 for i in range((-row_number), (-1 * row_number + 6)):
+
                     if pandas_dataframe.loc[pandas_dataframe.index[row_number], 'is_divergence_open_candidate'] == 1:
+
                         pandas_dataframe.loc[pandas_dataframe.index[row_number], 'paired_divergence_opens_id'] = 0
                         pandas_dataframe.loc[pandas_dataframe.index[row_number],
                                              'paired_divergence_opens_closing_price'] = 0
                         pandas_dataframe.loc[pandas_dataframe.index[row_number], 'paired_divergence_opens_rsi'] = 0
-                        break
+
+                        break # Why do i need this break?
 
         except Exception as e:
-            # Handle specific exceptions if needed
-            print(f"Error: {e}")
+            print(f"Error in limit_divergence_to_accepted_row: {e}")
+            traceback.print_exc()
 
     @staticmethod
     def calculate_divergence(pandas_dataframe, row_number):
         try:
             if 'rsi' in pandas_dataframe.columns and not pandas_dataframe['rsi'].isnull().all():
                 last_row = pandas_dataframe.iloc[row_number]
+
                 if not pandas_dataframe['rsi'].isna().all() and not pandas_dataframe[
                     'paired_divergence_opens_rsi'].isna().all():
+
                     if last_row['rsi'] < last_row['paired_divergence_opens_rsi'] and last_row['Close'] > last_row[
                         'paired_divergence_opens_closing_price']:
                         pandas_dataframe.loc[pandas_dataframe.index[row_number], 'is_divergence_high'] = 1
