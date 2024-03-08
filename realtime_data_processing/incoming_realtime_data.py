@@ -9,6 +9,7 @@ class RealtimeDataManager:
         except Exception as e:
             print(f"Error initializing RealtimeDataManager: {e}")
             traceback.print_exc()
+
     # start processing incoming realtime data
     def incoming_realtime_data(self, reqID, bar):
         try:

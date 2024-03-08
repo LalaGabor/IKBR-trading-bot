@@ -85,6 +85,7 @@ class Bot:
 
             # Create a bot specific dictionary to store threading attributes
             self.threading_attributes_by_symbol = {}  # stores buffer, lock, flags for symbol specific threads
+
         except Exception as e:
             print(f"Error processing initializing bot object: {e}")
             traceback.print_exc()
@@ -121,6 +122,7 @@ class Bot:
 
             # Return the contract object, which is required to call reqHistoricalData & reqRealTimeBars
             return contract
+
         except Exception as e:
             print(f"Error subscribing to symbol: {e}")
             traceback.print_exc()

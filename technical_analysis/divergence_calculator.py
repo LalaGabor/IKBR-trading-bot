@@ -8,8 +8,7 @@ pandas.options.mode.chained_assignment = None  # Suppress the SettingWithCopy wa
 class DivergenceCalculator:
 
     # function purpose: does the evaluated row potentially "open" a divergence, by being a local peak
-    @staticmethod
-    def get_open_candidate(pandas_dataframe, row_number):
+    def get_open_candidate(self, pandas_dataframe, row_number):
         try:
             # check if the pandas data frame has enough rows & the examined row has a sufficient rsi value
             if len(pandas_dataframe) >= 11 and pandas_dataframe['rsi'].iloc[row_number - 5] >= 70:
@@ -40,7 +39,7 @@ class DivergenceCalculator:
             print(f"Error in get_open_candidate: {e}")
             traceback.print_exc()
 
-    @staticmethod
+
     def get_close_candidates_nearest_open(self, pandas_dataframe, row_number):
         try:
             if not pandas_dataframe.empty:
@@ -70,7 +69,7 @@ class DivergenceCalculator:
         except Exception as e:
             print(f"Error in get_close_candidates_nearest_open: {e}")
             traceback.print_exc()
-    @staticmethod
+
     def limit_divergence_to_accepted_row(self, pandas_dataframe, row_number):
         try:
             if len(pandas_dataframe) >= 11:

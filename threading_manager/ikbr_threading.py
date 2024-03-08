@@ -32,6 +32,7 @@ class ThreadingManager:
                     'historical_data_processed': False,  # containing a flag
                     'realtime_priority': False  # containing a flag
                 }
+
         except Exception as e:
             print(f"Error with initializing ThreadingManager: {e}")
             traceback.print_exc()
@@ -67,6 +68,7 @@ class ThreadingManager:
             # listen for historical data
             self.bot.ib.reqHistoricalData(reqID, contract, "", "8000 S", "1 min", "TRADES", 1, 1, False, [])
             print(f"started historical thread for symbol {symbol}")
+
         except Exception as e:
             print(f"Exception in historical_thread for symbol {symbol}, reqID {reqID}: {e}")
         traceback.print_exc()
@@ -79,6 +81,7 @@ class ThreadingManager:
             # listen for realtime data
             self.bot.ib.reqRealTimeBars(reqID, contract, 5, "TRADES", True, [])
             print(f"started realtime thread for symbol {symbol}")
+
         except Exception as e:
             print(f"Exception in realtime_thread for symbol {symbol}, reqID {reqID}: {e}")
             traceback.print_exc()

@@ -3,7 +3,7 @@ import traceback
 pandas.options.mode.chained_assignment = None  # Suppress the SettingWithCopy warning
 
 class EntryCalculator:
-    @staticmethod
+
     # Find rows which meet the entry conditions
     def get_entry_candidates(self, pandas_dataframe, row_number):
         try:
@@ -21,7 +21,7 @@ class EntryCalculator:
             print(f"Error with get_entry_candidates realtime data: {e}")
             traceback.print_exc()
 
-    @staticmethod
+
     # Find rows which are accepted entries
     def get_entry_row(self, pandas_dataframe, row_number):
         try:
@@ -36,7 +36,6 @@ class EntryCalculator:
 
                     elif pandas_dataframe.loc[pandas_dataframe.index[row_number], 'is_entry_candidate'] == 1:
                         pandas_dataframe.loc[pandas_dataframe.index[row_number], 'is_entry'] = 1
-                        print(f"Entering a trade at {pandas_dataframe.loc[pandas_dataframe.index[row_number], 'Date']}")
 
                     else:
                         pandas_dataframe.loc[pandas_dataframe.index[row_number], 'is_entry'] = 0
