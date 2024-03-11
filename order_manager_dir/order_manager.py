@@ -1,4 +1,7 @@
 import traceback
+from ibapi.order import *
+
+
 class OrderManager:
     # Class Attributes
     orderId = 1  # must be unique, as TWS API requires unique orderId's for incoming order requests, ...
@@ -20,6 +23,7 @@ class OrderManager:
                     (self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1], 'Date'].minute % 5 == 0):
                 # Bracket Order 2% Pro fit Target 1% Stop Loss
                 # Define required attributes for creating order
+                #TODO check if the bar.close is in fact the right tick to use for setting the order attribut
                 profitTarget = bar.close * 1.005
                 stopLoss = bar.close * 0.99
                 quantity = 1
@@ -42,22 +46,15 @@ class OrderManager:
 
     # Bracket Order Setup
     def bracket_order(self, parentOrderID, action, quantity, profitTarget, stopLoss, symbol):
-        # Initial Entry
-        # Create our IB Contract Object
-        contract = self.bot.Contract()
-        contract.symbol = symbol.upper()
-        contract.secType = "STK"
-        contract.exchange = "SMART"
-        contract.currency = "EUR"
         # Create Parent Order / Initial Entry
-        parent = self.bot.Order()
+        parent = Order()
         parent.orderId = parentOrderID
         parent.orderType = "MKT"
         parent.action = action
         parent.totalQuantity = quantity
         parent.transmit = False
         # Profit Target
-        profitTargetOrder = self.bot.Order()
+        profitTargetOrder = Order()
         profitTargetOrder.orderId = parentOrderID + 1
         profitTargetOrder.orderType = "LMT"
         profitTargetOrder.action = "SELL"
@@ -65,7 +62,7 @@ class OrderManager:
         profitTargetOrder.lmtPrice = round(profitTarget, 2)
         profitTargetOrder.transmit = False
         # Stop Loss
-        stopLossOrder = self.bot.Order()
+        stopLossOrder = Order()
         stopLossOrder.orderId = parentOrderID + 2
         stopLossOrder.orderType = "STOP"
         stopLossOrder.action = "SELL"
