@@ -32,7 +32,7 @@ class OrderManager:
 
                 # Place the Bracket Order
                 for order in bracket:
-                    order.ocaGroup = "OCA_" + str(self.bot.orderId)
+                    order.ocaGroup = "OCA_" + str(self.orderId)
                     order.ocaType = 2
                     # use the ib thread (used for communicating with TWS) to place orders
                     self.bot.ib.placeOrder(order.orderId, contract, order)
@@ -53,6 +53,11 @@ class OrderManager:
         parent.action = action
         parent.totalQuantity = quantity
         parent.transmit = False
+        parent.eTradeOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
+        # weird, I know)
+        parent.firmQuoteOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
+        # weird, I know)
+
         # Profit Target
         profitTargetOrder = Order()
         profitTargetOrder.orderId = parentOrderID + 1
@@ -61,6 +66,11 @@ class OrderManager:
         profitTargetOrder.totalQuantity = quantity
         profitTargetOrder.lmtPrice = round(profitTarget, 2)
         profitTargetOrder.transmit = False
+        profitTargetOrder.eTradeOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
+        # weird, I know)
+        profitTargetOrder.firmQuoteOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
+        # weird, I know)
+
         # Stop Loss
         stopLossOrder = Order()
         stopLossOrder.orderId = parentOrderID + 2
@@ -69,6 +79,10 @@ class OrderManager:
         stopLossOrder.totalQuantity = quantity
         stopLossOrder.auxPrice = round(stopLoss, 2)
         stopLossOrder.transmit = True
+        stopLossOrder.eTradeOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
+        # weird, I know)
+        stopLossOrder.firmQuoteOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
+        # weird, I know)
 
         bracketOrders = [parent, profitTargetOrder, stopLossOrder]
 

@@ -44,7 +44,8 @@ class RealtimeDataManager:
                 else:
                     self.bot.mysql_connector.deduplication_of_partial_historical_data(symbol, row_number)
                     self.bot.technical_analysis_manager.calculate_ta_indicators(symbol,
-                                                                                row_number)  # calculate the technical indicators
+                                                                                row_number, realtime=False)  #
+                    # calculate the technical indicators
                     print(f"bar processed for {symbol}")
                     # Set the flag to True to ensure the logic is executed only once per bar
                     self.bar_logic_executed = True
