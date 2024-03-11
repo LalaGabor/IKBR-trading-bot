@@ -16,7 +16,7 @@ class HistoricalDataManager:
             symbol = self.bot.sym_dict[reqID]  # Fetch the symbol corresponding to the reqID
             self.process_historical_bars(bar, symbol)
             row_number = -1
-            self.bot.technical_analysis_manager.calculate_ta_indicators(symbol, row_number)
+            self.bot.technical_analysis_manager.calculate_ta_indicators(symbol, row_number, bar)
         except Exception as e:
             print(f"Error with incoming_historical_data: {e}")
             traceback.print_exc()
