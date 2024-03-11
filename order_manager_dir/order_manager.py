@@ -19,7 +19,7 @@ class OrderManager:
         try:
             # if the latest rows' 'is_entry' column = 1, place an order
             #TODO remove second part of conidtional, it is just for testing + debugging
-            if (self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1], 'is_entry'] == 1) and \
+            if (self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1], 'is_entry'] == 1) or \
                     (self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1], 'Date'].minute % 5 == 0):
                 # Bracket Order 2% Pro fit Target 1% Stop Loss
                 # Define required attributes for creating order
