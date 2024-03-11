@@ -1,6 +1,7 @@
 import traceback
 from ibapi.order import *
 import os
+from datetime import date
 
 
 class OrderManager:
@@ -18,16 +19,22 @@ class OrderManager:
 
     def load_order_id(self):
         # Check if the file exists
-        if os.path.exists("order_id.txt"):
-            with open("order_id.txt", "r") as file:
-                self.orderId = int(file.read()) + 200
-        else:
-            self.orderId = 200
+        if os.path.exists("order_info.txt"):
+            with open("order_info.txt", "r") as file:
+                data = file.read().split()  # read the last entry in the order_id logger file
+                if len(data) == 2:
+                    saved_day, saved_order_id = data  # save date and order_id as a tuple
+                    if saved_day == str(date.today()):
+                        self.orderId = int(saved_order_id)  # return order_id as an integer
+                        return
+        # If file doesn't exist or the day has changed, initialize values
+        self.orderId = 1
+        self.save_order_id()
 
     def save_order_id(self):
         # Save orderId to a file
         with open("order_id.txt", "w") as file:
-            file.write(str(self.orderId))
+            file.write(f"{date.today()} {self.orderId}")  # write (or if exists, overwrite) the last order_id
 
     def place_order_if_entry_conditions_met(self, bar, symbol):
         try:
