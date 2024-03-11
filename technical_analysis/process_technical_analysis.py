@@ -19,7 +19,7 @@ class TechnicalAnalysisProcessor:
             print(f"Error initializing TechnicalAnalysisProcessor object: {e}")
             traceback.print_exc()
 
-    def calculate_ta_indicators(self, symbol, row_number):
+    def calculate_ta_indicators(self, symbol, row_number, bar, realtime=False):
         try:
             RSICalculator.append_rsi_to_dataframe(self.bot.df_dict[symbol])
         except Exception as e:
@@ -68,6 +68,10 @@ class TechnicalAnalysisProcessor:
         except Exception as e:
             print(f"Error in calculate_divergence in calculate_ta_indicators: {e}")
             traceback.print_exc()
+
+        if realtime:
+            print("placing order, inside ta manager")
+            self.bot.order_manager.place_order_if_entry_conditions_met(bar, symbol)
 
         # Define the incoming row
         incoming_row = self.bot.df_dict[symbol].iloc[row_number]

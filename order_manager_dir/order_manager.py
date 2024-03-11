@@ -1,5 +1,6 @@
 import traceback
 from ibapi.order import *
+import os
 
 
 class OrderManager:
@@ -9,18 +10,33 @@ class OrderManager:
     def __init__(self, bot):
         try:
             self.bot = bot
-
+            self.load_order_id()
 
         except Exception as e:
             print(f"Error initializing OrderManager: {e}")
             traceback.print_exc()
 
+    def load_order_id(self):
+        # Check if the file exists
+        if os.path.exists("order_id.txt"):
+            with open("order_id.txt", "r") as file:
+                self.orderId = int(file.read()) + 200
+        else:
+            self.orderId = 200
+
+    def save_order_id(self):
+        # Save orderId to a file
+        with open("order_id.txt", "w") as file:
+            file.write(str(self.orderId))
+
     def place_order_if_entry_conditions_met(self, bar, symbol):
         try:
+            print("starting order placement1")
             # if the latest rows' 'is_entry' column = 1, place an order
             #TODO remove second part of conidtional, it is just for testing + debugging
             if (self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1], 'is_entry'] == 1) or \
-                    (self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1], 'Date'].minute % 5 == 0):
+                    (self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1], 'Date'].minute % 2 == 0):
+                print("starting order placement2")
                 # Bracket Order 2% Pro fit Target 1% Stop Loss
                 # Define required attributes for creating order
                 #TODO check if the bar.close is in fact the right tick to use for setting the order attribut
@@ -37,7 +53,10 @@ class OrderManager:
                     # use the ib thread (used for communicating with TWS) to place orders
                     self.bot.ib.placeOrder(order.orderId, contract, order)
 
+                #TODO this needs to tracked externally to script so it does not restart at 1 on script restart
                 self.orderId += 3
+                self.save_order_id()
+                #TODO only have this print if the order is actually submitted
                 print(f"trade entered for {symbol}")
 
         except Exception as e:
@@ -52,7 +71,7 @@ class OrderManager:
         parent.orderType = "MKT"
         parent.action = action
         parent.totalQuantity = quantity
-        parent.transmit = False
+        parent.transmit = True
         parent.eTradeOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
         # weird, I know)
         parent.firmQuoteOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
@@ -61,11 +80,12 @@ class OrderManager:
         # Profit Target
         profitTargetOrder = Order()
         profitTargetOrder.orderId = parentOrderID + 1
+        print(f"order id is {profitTargetOrder.orderId}")
         profitTargetOrder.orderType = "LMT"
         profitTargetOrder.action = "SELL"
         profitTargetOrder.totalQuantity = quantity
         profitTargetOrder.lmtPrice = round(profitTarget, 2)
-        profitTargetOrder.transmit = False
+        profitTargetOrder.transmit = True
         profitTargetOrder.eTradeOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
         # weird, I know)
         profitTargetOrder.firmQuoteOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
