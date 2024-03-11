@@ -15,7 +15,9 @@ class OrderManager:
     def place_order_if_entry_conditions_met(self, bar, symbol):
         try:
             # if the latest rows' 'is_entry' column = 1, place an order
-            if self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1],'is_entry'] == 1:
+            #TODO remove second part of conidtional, it is just for testing + debugging
+            if (self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1], 'is_entry'] == 1) and \
+                    (self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1], 'Date'].minute % 5 == 0):
                 # Bracket Order 2% Pro fit Target 1% Stop Loss
                 # Define required attributes for creating order
                 profitTarget = bar.close * 1.005
