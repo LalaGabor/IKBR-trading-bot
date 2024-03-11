@@ -49,7 +49,7 @@ class Bot:
     # ... so the value must be adapted to bar_size)
     df_dict = {}  # Dictionary to store DataFrames for each symbol
     reqID = 1
-    symbols = ["ENEL"]  # , "ENI", "ISP", "UCG", "G", "PIRC", "SPM", "UNI", "BAMI", "LDO"]
+    symbols = ["ENEL" , "ENI", "ISP", "UCG", "G", "PIRC", "SPM", "UNI", "BAMI", "LDO"]
     sym_dict = {}  # stores a symbol, reqID pair
 
     # what is automatically run when an instance of the class is created
@@ -109,23 +109,31 @@ class Bot:
             self.subscribe_to_symbol(symbol, i)
 
     # Dual-purpose method, link symbol & reqID as well as return the contract object
-    def subscribe_to_symbol(self, symbol, reqID):
-        try:# Define a contract for the given symbol
+    def get_symbols_contract_object(self, symbol):
+        try:
             contract = Contract()  # using ibapi.contract constructor
             contract.symbol = symbol
             contract.secType = "STK"
             contract.exchange = "SMART"
             contract.currency = "EUR"
 
-            # Store the symbol in the sym_dict for later reference
-            self.sym_dict[reqID] = symbol
-
             # Return the contract object, which is required to call reqHistoricalData & reqRealTimeBars
             return contract
 
         except Exception as e:
+            print(f"Error getting contract for {symbol}: {e}")
+            traceback.print_exc()
+
+    def subscribe_to_symbol(self, symbol, reqID):
+        try:# Define a contract for the given symbol
+
+            # Store the symbol in the sym_dict for later reference
+            self.sym_dict[reqID] = symbol
+
+        except Exception as e:
             print(f"Error subscribing to symbol: {e}")
             traceback.print_exc()
+
     # Open a communication thread with TWS API for handling connection & order placement
     # created on init of bot class instance
     def run_loop(self):

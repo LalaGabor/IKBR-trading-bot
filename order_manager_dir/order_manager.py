@@ -11,6 +11,7 @@ class OrderManager:
         except Exception as e:
             print(f"Error initializing OrderManager: {e}")
             traceback.print_exc()
+
     def place_order_if_entry_conditions_met(self, bar, symbol):
         try:
             # if the latest rows' 'is_entry' column = 1, place an order
@@ -18,24 +19,20 @@ class OrderManager:
                 # Bracket Order 2% Pro fit Target 1% Stop Loss
                 # Define required attributes for creating order
                 profitTarget = bar.close * 1.005
-                stopLoss = bar.close * 0.995
+                stopLoss = bar.close * 0.99
                 quantity = 1
                 bracket = self.bracket_order(self.orderId, "BUY", quantity, profitTarget, stopLoss, symbol)
-                contract = self.bot.Contract()
-                contract.symbol = symbol.upper()
-                contract.secType = "STK"
-                contract.exchange = "SMART"
-                contract.currency = "EUR"
+                contract = self.bot.get_symbols_contract_object()
 
                 # Place the Bracket Order
-                for o in bracket:
-                    o.ocaGroup = "OCA_" + str(self.bot.orderId)
-                    o.ocaType = 2
+                for order in bracket:
+                    order.ocaGroup = "OCA_" + str(self.bot.orderId)
+                    order.ocaType = 2
                     # use the ib thread (used for communicating with TWS) to place orders
-                    self.bot.ib.placeOrder(o.orderId, contract, o)
+                    self.bot.ib.placeOrder(order.orderId, contract, order)
 
                 self.orderId += 3
-                print("entered order confirmed")
+                print(f"trade entered for {symbol}")
 
         except Exception as e:
             print(f"Error place_order_if_entry_conditions_met: {e}")

@@ -64,7 +64,7 @@ class ThreadingManager:
     def historical_thread(self, symbol, reqID):
         try:
             # listen for realtime data, this automatically triggers callback method historicalData
-            contract = self.bot.subscribe_to_symbol(symbol, reqID)
+            contract = self.bot.get_symbols_contract_object(symbol)
             # listen for historical data
             self.bot.ib.reqHistoricalData(reqID, contract, "", "8000 S", "1 min", "TRADES", 1, 1, False, [])
             print(f"started historical thread for symbol {symbol}")
@@ -76,7 +76,7 @@ class ThreadingManager:
     def realtime_thread(self, symbol, reqID):
         try:
             # Get the contract object from subscribe to symbols
-            contract = self.bot.subscribe_to_symbol(symbol, reqID)
+            contract = self.bot.get_symbols_contract_object(symbol)
             print(f"Realtime thread for symbol {symbol}, reqID: {reqID}: Contract: ({contract})")
             # listen for realtime data
             self.bot.ib.reqRealTimeBars(reqID, contract, 5, "TRADES", True, [])
