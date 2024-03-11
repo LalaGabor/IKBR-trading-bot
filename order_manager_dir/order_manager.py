@@ -28,7 +28,7 @@ class OrderManager:
                 stopLoss = bar.close * 0.99
                 quantity = 1
                 bracket = self.bracket_order(self.orderId, "BUY", quantity, profitTarget, stopLoss, symbol)
-                contract = self.bot.get_symbols_contract_object()
+                contract = self.bot.get_symbols_contract_object(symbol)
 
                 # Place the Bracket Order
                 for order in bracket:
