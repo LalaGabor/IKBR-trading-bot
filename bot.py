@@ -49,7 +49,7 @@ class Bot:
     # ... so the value must be adapted to bar_size)
     df_dict = {}  # Dictionary to store DataFrames for each symbol
     reqID = 1
-    symbols = ["ENEL" , "ENI", "ISP", "UCG", "G", "PIRC", "SPM", "UNI", "BAMI", "LDO"]
+    symbols = ["ENEL"] #, "ENI"]#, "ISP", "UCG", "G", "PIRC", "SPM", "UNI", "BAMI", "LDO"]
     sym_dict = {}  # stores a symbol, reqID pair
 
     # what is automatically run when an instance of the class is created

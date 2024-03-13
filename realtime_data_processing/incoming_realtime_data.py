@@ -30,8 +30,6 @@ class RealtimeDataManager:
             # On realtime Bar Close, perform the following...
             # TODO later, alter this logic for 30min bars. It will be minutes == 29/59 and seconds == 55
             if bar_time.second == 55:
-                print("bar close logic triggered")
-                print(bar_time)
                 row_number = -1
                 ##TODO this logic is potentially imprecise? Refactor to label incoming tick erroneous if seconds
                 ## difference to now() > 60 seconds
@@ -45,7 +43,6 @@ class RealtimeDataManager:
                     self.bot.technical_analysis_manager.calculate_ta_indicators(symbol,
                                                                                 row_number, bar, realtime=True)  #
                     # calculate the technical indicators
-                    print(f"bar processed for {symbol}")
                     # Set the flag to True to ensure the logic is executed only once per bar
                     self.bar_logic_executed = True
         except Exception as e:
