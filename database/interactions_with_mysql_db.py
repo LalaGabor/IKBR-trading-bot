@@ -75,7 +75,6 @@ class DatabaseManager:
             else:
 
                 last_row = self.bot.df_dict[symbol].iloc[row_number]  # get the latest row (for deduplication)
-                print(f"the row being checked for duplicates is: {last_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}")
                 if self.delete_partial < 2:
                     # Drop the row from the database where date matches the incoming (duplicate) row's date
 
@@ -88,7 +87,6 @@ class DatabaseManager:
                                     AND hour(`Date`) = hour('{last_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}')
                                     AND minute(`Date`) = minute('{last_row['Date'].strftime('%Y-%m-%d %H:%M:%S')}')
                                     """
-                    print(f"check if delete is being triggered correctly")
 
                     # use a cursor to pass the delete_query to the DB
                     try:

@@ -70,7 +70,7 @@ class TechnicalAnalysisProcessor:
             traceback.print_exc()
 
         if realtime:
-            print("placing order, inside ta manager")
+            print("starting ordermanager from inside ta manager")
             self.bot.order_manager.place_order_if_entry_conditions_met(bar, symbol)
 
         # Define the incoming row
