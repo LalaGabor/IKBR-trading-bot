@@ -3,6 +3,7 @@ from ibapi.client import EClient
 from ibapi.wrapper import EWrapper
 from datetime import datetime
 import pytz
+from datetime import date
 #from bot import Bar
 
 """""""""""""""
@@ -20,7 +21,7 @@ class Bar:
 
 
 class IBApi(EWrapper, EClient):
-    def __init__(self, bot):
+    def __init__(self, bot, Client_name):
         try:
             # Build IBApi instance using the parent class EClient (provided in ibapi package)
             # The 'self' parameter represents the instance being created
@@ -29,6 +30,8 @@ class IBApi(EWrapper, EClient):
             # Store a reference to the Bot instance
             # This allows IBApi to communicate with the Bot, especially for passing req_IDs
             self.bot = bot
+            self.Client_name = Client_name
+            print(f"Started {Client_name}")
         except Exception as e:
             print(f"Error initializing IBApi object: {e}")
             traceback.print_exc()
@@ -66,12 +69,13 @@ class IBApi(EWrapper, EClient):
             print(f"Error in historicalDataEnd callback method: {e}")
             traceback.print_exc()
 
-    #TODO is this needed?
-    # Get the next order id that can be used
-    def nextValidId(self, nextorderID):
-        global orderId
-        orderId = nextorderID
-        print(f"Next valid order ID received: {nextorderID}")
+
+    #Get the next order id that can be used
+    def nextValidId(self, orderId):
+        print(f"Next valid order ID received: {orderId}")
+        # Save orderId to a file
+        with open("order_id.txt", "w") as file:
+            file.write(f"{date.today()} {orderId}")  # write (or if exists, overwrite) the last order_id
 
     # Gets realtime data, when it is made available
     # It is made available by ib.reqRealTimeBars

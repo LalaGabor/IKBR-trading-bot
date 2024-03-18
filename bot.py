@@ -55,27 +55,37 @@ class Bot:
     # what is automatically run when an instance of the class is created
     def __init__(self):
         try:
-            # initialize a DatabaseManager object, pass bot instance to object on init
-            # this object creates an engine that connects to local DB on init
-            self.mysql_connector = database.DatabaseManager(self)
-            # initialize an IBAPI object, pass bot instance to object on init
-            self.ibapi_client = IBApi(self)
-            # initialize a ThreadingManager object, pass bot instance to object on init
-            self.threading_manager = threading_manager.ThreadingManager(self)
-            # initialize a HistoricalDataManager object, pass bot instance to object on init
-            self.historical_data_manager = historical_data_processing.HistoricalDataManager(self)
-            # initialize a RealtimeDataManager object, pass bot instance to object on init
-            self.realtime_data_manager = realtime_data_processing.RealtimeDataManager(self)
-            # initialize a TechnicalAnalysisProcessor object, pass bot instance to object on init
-            self.technical_analysis_manager = technical_analysis.TechnicalAnalysisProcessor(self)
-            # initialize an OrderManager object, pass bot instance to object on init
-            self.order_manager = order_manager_dir.OrderManager(self)
-
             # Connect to TWS API on init
-            self.ib = IBApi(self)  # Note: you can not create multiple bot objects, as TWS API won't accept multiple
+            self.ib = IBApi(self, "Communicator Client")  # Note: you can not create multiple bot objects, as TWS API
+            # won't accept
+            # multiple
             # clients on same port
             self.ib.connect("127.0.0.1", 7497, 1)  # pass connection details to TWS API
             print("Connected to Interactive Brokers")
+            time.sleep(1)
+
+            # initialize a DatabaseManager object, pass bot instance to object on init
+            # this object creates an engine that connects to local DB on init
+            self.mysql_connector = database.DatabaseManager(self)
+
+            # initialize an IBAPI object, pass bot instance to object on init
+            self.ibapi_client = IBApi(self, "Order Execution Client")
+
+            # initialize a ThreadingManager object, pass bot instance to object on init
+            self.threading_manager = threading_manager.ThreadingManager(self)
+
+            # initialize a HistoricalDataManager object, pass bot instance to object on init
+            self.historical_data_manager = historical_data_processing.HistoricalDataManager(self)
+
+            # initialize a RealtimeDataManager object, pass bot instance to object on init
+            self.realtime_data_manager = realtime_data_processing.RealtimeDataManager(self)
+
+            # initialize a TechnicalAnalysisProcessor object, pass bot instance to object on init
+            self.technical_analysis_manager = technical_analysis.TechnicalAnalysisProcessor(self)
+
+            # initialize an OrderManager object, pass bot instance to object on init
+            self.order_manager = order_manager_dir.OrderManager(self)
+
 
             # TODO move this to threading manager
             # Start a separate thread for IB communication
