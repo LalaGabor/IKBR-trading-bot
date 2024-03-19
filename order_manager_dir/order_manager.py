@@ -6,13 +6,13 @@ from datetime import date
 
 class OrderManager:
     # Class Attributes
-    orderId = 1  # must be unique, as TWS API requires unique orderId's for incoming order requests, ...
+    orderId = 1  # must be unique, as TWS API requires unique orderId's for incoming order
+    # requests, ...
     # ...gets incrementally updated (+=) with each 'use'
     def __init__(self, bot):
         try:
             self.bot = bot
             self.load_order_id()
-
         except Exception as e:
             print(f"Error initializing OrderManager: {e}")
             traceback.print_exc()
@@ -27,6 +27,9 @@ class OrderManager:
                     if saved_day == str(date.today()):
                         self.orderId = int(saved_order_id)  # return order_id as an integer
                         return
+                    else:  # If file doesn't exist or the day has changed, initialize values
+                        self.orderId = 400
+                        self.save_order_id()
         else:  # If file doesn't exist or the day has changed, initialize values
             self.orderId = 400
             self.save_order_id()
@@ -46,8 +49,11 @@ class OrderManager:
                 print("entry conditions met, starting order placement")
                 # Define required attributes for creating order
                 #TODO check if the bar.close is in fact the right tick to use for setting the order attribut
-                profitTarget = bar.close * 1.005
+                print(bar.close)
+                profitTarget = bar.close * 1.01
+                print(profitTarget)
                 stopLoss = bar.close * 0.99
+                print(stopLoss)
                 quantity = 1
                 bracket = self.bracket_order(self.orderId, "BUY", quantity, profitTarget, stopLoss, symbol)
                 contract = self.bot.get_symbols_contract_object(symbol)
@@ -94,6 +100,7 @@ class OrderManager:
         profitTargetOrder.action = "SELL"
         profitTargetOrder.totalQuantity = quantity
         profitTargetOrder.lmtPrice = round(profitTarget, 2)
+        print(profitTargetOrder.lmtPrice)
         profitTargetOrder.transmit = True
         profitTargetOrder.eTradeOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
         # weird, I know)
@@ -108,6 +115,7 @@ class OrderManager:
         stopLossOrder.action = "SELL"
         stopLossOrder.totalQuantity = quantity
         stopLossOrder.auxPrice = round(stopLoss, 2)
+        print(stopLossOrder.auxPrice)
         stopLossOrder.transmit = True
         stopLossOrder.eTradeOnly = ''  # API expects an empty string, as endpoint exists but is not supported (
         # weird, I know)
