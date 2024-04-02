@@ -14,12 +14,12 @@ Test 6. Test drop table function. Test that targeted tables are dropped. First i
 --add a symbol to the list of symbols. add a table for that symbol. then drop the table for that symbol using function. assert that it is dropped. delete dummy symbol list of symbols
 --Done
 Test 7. Test update table function. Test that targeted tables are updated.
--- Read in some dummy data from a csv.
--- Use dummy data in database_manager fixture
+-- Read in some dummy data from a csv. --Done
+-- Use dummy data in database_manager fixture -- Done
+-- Get dummy data into DB  -- in progress
 -- Set the dummy data 'is_divergence_open' = 1 at the targeted row (row_number - 5)
 -- run the function to update table in db. assert that it is updated.
-
---revert any changes to the dummy data
+-- revert any changes to the dummy data
 
 Tests Historical data
 

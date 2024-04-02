@@ -174,9 +174,10 @@ class DatabaseManager:
     # rows are processed as the come in and thus appended. Some functions though will update previous rows in
     # dataframe and this updates those rows in the DB
 
-    def update_open_candidate_row(self, symbol, row_number):
+    def update_open_candidate_row(self, symbol, row_number, table_name=None):
         try:
-            table_name = f"bot_{symbol.lower()}_debug"  # find debugging tables' name
+            if table_name is None:  # Conditional to allow for passing a table name during testing
+                table_name = f"bot_{symbol.lower()}_debug"  # find table related to passed symbol name
 
             # ensure source dataframe is long enough
             if len(self.bot.df_dict[symbol]) < 12:

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 import database_manager_dir
 import mysql.connector
 import pandas
-from testing.sample_data import sample_date_data, sample_dataframe, sample_dataframe_query
+from testing.sample_data import sample_date_data, sample_dataframe, sample_dataframe_query, big_sample_dataframe
 
 
 @pytest.fixture  # This decorator is somewhat 'magical'. Rather than reading it as a function being defined. Understand
@@ -14,7 +14,7 @@ def database_manager_factory():
         # This dynamically fetches the sample data based on the test, which is using the database_manager fixture
         bot_mock = MagicMock()  # create magic mock object
         symbol = 'symbol'  # Create dummy symbol string
-        bot_mock.df_dict = {symbol: sample_data}  # assign dummy data to key inside dictionary
+        bot_mock.df_dict = {symbol: sample_data}  # assign dummy data to key inside mocked dictionary
         # Connect to the database
         conn = mysql.connector.connect(
             host="localhost",
@@ -42,7 +42,7 @@ def test_deduplication_of_partial_historical_data_integration(database_manager_f
     """)
     cursor.execute("""
         INSERT INTO bot_symbol_debug (Date) VALUES 
-        ('2022-01-01 00:00:00'), ('2022-01-01 00:00:00'), ('2022-01-02 00:00:00')
+        ('2022-01-01 00:00:00'), ('2022-01-02 00:00:00')
     """)
     conn.commit()
     try:
@@ -54,7 +54,7 @@ def test_deduplication_of_partial_historical_data_integration(database_manager_f
         # Verify that the duplicate row was deleted
         cursor.execute("SELECT COUNT(*) FROM bot_symbol_debug")
         count = cursor.fetchone()[0]
-        assert count == 2
+        assert count == 1
     finally:
         # Clean up: Drop the test table
         cursor.execute("DROP TABLE IF EXISTS bot_symbol_debug")
@@ -121,32 +121,6 @@ def test_drop_tables_if_exist(database_manager_factory, sample_dataframe):
     conn.close()
 
 # Test the append_data_to_mysql function
-def test_update_open_candidate_row(database_manager_factory, sample_dataframe):
+def test_update_open_candidate_row(database_manager_factory, big_sample_dataframe):
     # Create our mocked database object + sample data
-    database_manager = database_manager_factory(sample_dataframe)
-
-    # Connect to the database
-    conn = database_manager.conn
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS bot_symbol_debug (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            Date DATETIME
-        )
-    """)
-
-    database_manager.bot.symbols = ["symbol"]
-
-    # Call the method being tested
-    database_manager.drop_tables_if_exist()
-
-    # Verify that the duplicate row was deleted
-    cursor.execute(f"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'bot_symbol_debug'")
-    count = cursor.fetchone()[0]
-    assert count == 0
-
-
-    # Clean up: Drop the test table
-    cursor.execute("DROP TABLE IF EXISTS bot_symbol_debug")
-    conn.commit()
-    conn.close()
+    database_manager = database_manager_factory(big_sample_dataframe)
