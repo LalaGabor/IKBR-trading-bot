@@ -26,20 +26,3 @@ def test_get_mysql_engine(bot_mock):
 
     # Assert that the method returned an instance of SQLAlchemy's Engine
     assert isinstance(mysql_engine, sqlalchemy.engine.Engine)
-
-
-def test_append_data_to_mysql(database_manager):
-    # Test appending data to MySQL
-    # Mock the required dependencies and call the method being tested
-    # Assert the expected behavior
-    pass
-def test_drop_tables_if_exist(database_manager):
-    # Test dropping tables if they exist
-    # Mock the required dependencies and call the method being tested
-    # Assert the expected behavior
-    pass
-def test_update_open_candidate_row(database_manager):
-    # Test updating open candidate row
-    # Mock the required dependencies and call the method being tested
-    # Assert the expected behavior
-    pass

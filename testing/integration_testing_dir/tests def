@@ -1,0 +1,45 @@
+Tests DB
+
+Test 1. Connection to db exists (engine exists)
+--Done
+Test 2. Can insert data (test via reading inserted data). Use dummy data. Insert it into table. Assert that inserted table exists (via read query).
+-- Not necessary (covered in next test)
+Test 3. Test deduplication function. Test that delete query correctly impacts table (insert dummy data with duplicates on the target date). assert that it is inserted (via read query)
+-- Done
+Test 4. Test append function. Test that append query correctly impacts table (inserts dummy data, assert that read from table after insert returns xyz)
+-- Done
+Test5. Test append function. Test that columns have expected type. Get expected types from dummy data.
+-- skipped
+Test 6. Test drop table function. Test that targeted tables are dropped. First insert dummy tables, then target those dummy tables with the function.
+--add a symbol to the list of symbols. add a table for that symbol. then drop the table for that symbol using function. assert that it is dropped. delete dummy symbol list of symbols
+--Done
+Test 7. Test update table function. Test that targeted tables are updated.
+-- Read in some dummy data from a csv.
+-- Use dummy data in database_manager fixture
+-- Set the dummy data 'is_divergence_open' = 1 at the targeted row (row_number - 5)
+-- run the function to update table in db. assert that it is updated.
+
+--revert any changes to the dummy data
+
+Tests Historical data
+
+Test 1. Test process historical data. Set self.bot.df_dict[symbol] to be empty. Assert that new_index = 0
+Test 2. Test process historical data. Set self.bot.df_dict[symbol] to be not empty. Assert that new_index = self.bot.df_dict[symbol].index[-1] + 1
+Test 3. Test process historical data. Set self.bot.df_dict[symbol] to be not empty. Assert that self.bot.df_dict[symbol].loc[new_index] = passed dummy data (via bar argument)
+
+Tests Client Manager
+
+None relevant identified.
+Test that incoming historical/realtime data arrives? Should be in bot section
+Test that connection is established? Should be in bot section
+
+Order Manager Tests
+
+Test 1. Test place order. Test that profit_target and stop_loss calculated correctly. Assert that it equals values 1,2,3. Use dummy data
+Test 2. Test place order. Test that order_id has iterated correctly. Assert that it equals values 1,2,3. Use dummy data
+Test 3. Test place order. Test placing order. Using sample/dummy data place an order. Assert that get_order_status returns a placed order
+
+Realtime Data Tests
+
+Test 1. Test process realtime data. Test new data for existing date field. Pass dummy data. Assert that columns match expected values. Delete added dummy data
+Test 1. Test process realtime data. Test new data for non existing date field. Pass dummy data. Assert that columns match expected values. Delete added dummy data

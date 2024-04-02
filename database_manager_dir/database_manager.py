@@ -112,7 +112,7 @@ class DatabaseManager:
 
             # Fix Date's datatype for conversion to MySQL
             incoming_row['Date'] = pandas.to_datetime(incoming_row['Date'])
-
+            print(type(incoming_row['Date']))
             # Force last_row to be a DataFrame
             # Force the Dataframe to have the specified columns, otherwise the index is included,...
             # ...which sql table does not expect

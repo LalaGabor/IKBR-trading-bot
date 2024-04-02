@@ -1,5 +1,5 @@
 import pandas
-
+import pytest
 
 class Bar:
     def __init__(self, open_, high, low, close, volume, date, tick):
@@ -18,6 +18,7 @@ def sample_bar():
 
 
 # Note: Dependent tests will expect this to contain only one row
+"""
 def sample_dataframe():
     sample = pandas.DataFrame({'Open': 100,
                 'High': 110,
@@ -32,8 +33,48 @@ def sample_dataframe():
                 'paired_divergence_opens_rsi': 0,
                 'is_divergence_high': 0,
                 'rsi': 0,
-                'symbol': "AAPL"})
+                'symbol': "symbol"})
     return sample
+"""
+
+@pytest.fixture
+def sample_dataframe():
+    sample = pandas.DataFrame({'Open': [100],
+                'High': [110],
+                'Low': [90],
+                'Close': [105],
+                'Volume': [1000],
+                'Date': ["2024-03-25"],
+                'is_divergence_open_candidate': [0],
+                'paired_divergence_opens_id': [0],
+                'paired_divergence_opens_closing_price': [0],
+                'paired_divergence_opens_rsi': [0],
+                'is_divergence_high': [0],
+                'rsi': [0],
+                'is_entry_candidate': [0],
+                'is_entry': [0],
+                'symbol': ["symbol"]})
+    return sample
+
+def sample_dataframe_query(symbol):
+    sample_query = f"""CREATE TABLE IF NOT EXISTS bot_{symbol}_debug (
+            Open FLOAT,
+            High FLOAT,
+            Low FLOAT,
+            Close FLOAT,
+            Volume INT,
+            Date DATE,
+            is_divergence_open_candidate INT,
+            paired_divergence_opens_id INT,
+            paired_divergence_opens_closing_price FLOAT,
+            paired_divergence_opens_rsi FLOAT,
+            is_divergence_high INT,
+            rsi FLOAT,
+            is_entry_candidate INT,
+            is_entry INT,
+            symbol VARCHAR(50)
+        )"""
+    return sample_query
 
 
 def sample_symbol_dictionary():
@@ -41,3 +82,20 @@ def sample_symbol_dictionary():
     sample_symbol_dict  = {1: "AAPL", 2: "GOOG"}
 
     return sample_symbol_dict
+
+
+@pytest.fixture
+def sample_date_data():
+
+    sample_dates = {'Date': pandas.to_datetime(['2022-01-02 00:00:00', '2022-01-01 00:00:00'])}
+    dataframe = pandas.DataFrame(sample_dates)
+    return dataframe
+
+
+#TODO fix price data
+def sample_price_data():
+
+    sample_dates = {'Date': pandas.to_datetime(['2022-01-01 00:00:00', '2022-01-02 00:00:00'])}
+
+    return sample_dates
+
