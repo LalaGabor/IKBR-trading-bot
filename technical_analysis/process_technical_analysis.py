@@ -76,7 +76,7 @@ class TechnicalAnalysisProcessor:
         # Define the incoming row
         incoming_row = self.bot.df_dict[symbol].iloc[row_number]
 
-        # Use the bots inited connector object to append to the database
+        # Use the bots inited connector object to append to the database_manager_dir
         try:
             self.bot.mysql_connector.append_data_to_mysql(incoming_row, symbol)
         except Exception as e:

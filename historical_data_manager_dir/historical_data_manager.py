@@ -11,6 +11,7 @@ class HistoricalDataManager:
         except Exception as e:
             print(f"Error initializing HistoricalDataManager: {e}")
             traceback.print_exc()
+
     def incoming_historical_data(self, reqID, bar):
         try:
             symbol = self.bot.sym_dict[reqID]  # Fetch the symbol corresponding to the reqID
@@ -20,6 +21,8 @@ class HistoricalDataManager:
         except Exception as e:
             print(f"Error with incoming_historical_data: {e}")
             traceback.print_exc()
+            raise
+
     def process_historical_bars(self, bar, symbol):
         try:
             if self.bot.df_dict[symbol].empty:
