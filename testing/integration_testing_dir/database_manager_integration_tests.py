@@ -14,7 +14,7 @@ def database_manager_factory():
         # This dynamically fetches the sample data based on the test, which is using the database_manager fixture
         bot_mock = MagicMock()  # create magic mock object
         symbol = 'symbol'  # Create dummy symbol string
-        bot_mock.df_dict = {symbol: sample_data}  # assign dummy data to key inside mocked dictionary
+        bot_mock.bot.df_dict = {symbol: sample_data}  # assign dummy data to key inside mocked dictionary
         # Connect to the database
         conn = mysql.connector.connect(
             host="localhost",
@@ -120,7 +120,41 @@ def test_drop_tables_if_exist(database_manager_factory, sample_dataframe):
     conn.commit()
     conn.close()
 
+
 # Test the append_data_to_mysql function
 def test_update_open_candidate_row(database_manager_factory, big_sample_dataframe):
     # Create our mocked database object + sample data
     database_manager = database_manager_factory(big_sample_dataframe)
+    # Print the columns of the DataFrame
+    print(database_manager.bot.df_dict['symbol'].columns)
+    # Access the 'is_divergence_open_candidate' column directly
+    is_divergence_open_candidate_values = database_manager.bot.df_dict['symbol'].is_divergence_open_candidate
+
+    return_value = database_manager.bot.df_dict['symbol'].iloc[-1]  # Get the most
+    # recent is_divergence_candidate value
+    is_divergence_open_candidate_value = return_value.loc['is_divergence_open_candidate']
+
+    #Change the targeted row's value for testing
+    database_manager.bot.df_dict['symbol']['is_divergence_open_candidate'].iloc[-6] = 2
+
+    target_date = database_manager.bot.df_dict['symbol']['Date'].iloc[-6]  # Get the most recent row's date
+    print(target_date)
+
+    conn = database_manager.conn
+
+    database_manager.update_open_candidate_row(symbol = 'symbol', row_number=-1, table_name='sample_data_checker')
+    # use sample_data_checker as the
+    # default dummy data table in DB. All changes to this table should be reverted.
+    cursor = conn.cursor()
+    cursor.execute(f"""
+        SELECT 'is_divergence_open_candidate' FROM sample_data_checker WHERE Date = '{target_date}'
+        """)
+    db_value = cursor.fetchone()[0]
+    assert db_value == 2
+
+    # Clean up: Revert the value change in DB
+    cursor.execute(f"UPDATE `trading_bot_debug`.`sample_data_checker` " \
+                               f"SET `is_divergence_open_candidate` = {return_value} " \
+                               f" WHERE `Date` = '{target_date}'")
+    conn.commit()
+    conn.close()
