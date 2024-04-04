@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
 import historical_data_manager_dir
-# Import the sample_bar function from sample_data.py
-from testing.sample_data import sample_bar, sample_dataframe, sample_symbol_dictionary
+# Import the sample_bar function from sample_data_manager.py
+from testing.sample_data_manager import sample_bar, sample_dataframe, sample_symbol_dictionary
 import pandas
 
 

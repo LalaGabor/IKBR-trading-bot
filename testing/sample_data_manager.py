@@ -1,7 +1,8 @@
 import pandas
 import pytest
 import os
-
+import numpy
+import csv
 
 class Bar:
     def __init__(self, open_, high, low, close, volume, date, tick):
@@ -76,8 +77,8 @@ def sample_date_data():
 @pytest.fixture
 def big_sample_dataframe():
     csv_file = os.path.join(os.path.dirname(__file__), 'sample_csv_data.csv')
-    big_sample = pandas.read_csv(csv_file, delimiter=';', encoding='utf-8')
+    parse_dates = ['Date']
+    big_sample = pandas.read_csv(csv_file, delimiter=',', encoding='utf-8', quoting=csv.QUOTE_NONE,
+                                 parse_dates=parse_dates)
 
     return big_sample
-#df = big_sample_dataframe()
-#print(df.head())

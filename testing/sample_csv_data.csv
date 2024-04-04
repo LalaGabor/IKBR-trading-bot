@@ -1,4 +1,4 @@
-"Open","High","Low","Close","Volume","Date","is_divergence_open_candidate","paired_divergence_opens_id","paired_divergence_opens_closing_price","paired_divergence_opens_rsi","is_divergence_high","rsi","is_entry_candidate","is_entry","symbol"
+Open,High,Low,Close,Volume,Date,is_divergence_open_candidate,paired_divergence_opens_id,paired_divergence_opens_closing_price,paired_divergence_opens_rsi,is_divergence_high,rsi,is_entry_candidate,is_entry,symbol
 6.131,6.131,6.128,6.128,12530,2024-03-18 10:47:00.000,0,0,0,0,0,,0.0,0.0,ENEL
 6.128,6.128,6.127,6.127,24008,2024-03-18 10:48:00.000,0,0,0,0,0,,0.0,0.0,ENEL
 6.125,6.126,6.124,6.124,17230,2024-03-18 10:49:00.000,0,0,0,0,0,,0.0,0.0,ENEL

@@ -17,9 +17,9 @@ Test 7. Test update table function. Test that targeted tables are updated.
 -- Read in some dummy data from a csv. -- Done
 -- Use dummy data in database_manager fixture -- Done
 -- Get dummy data into DB  -- Done
--- Set the dummy data 'is_divergence_open' = 1 at the targeted row (row_number - 5)
--- run the function to update table in db. assert that it is updated.
--- revert any changes to the dummy data
+-- Set the dummy data 'is_divergence_open' = 1 at the targeted row (row_number - 5) --Done
+-- run the function to update table in db. assert that it is updated. -- Done
+-- revert any changes to the dummy data -- Done
 
 Tests Historical data
 
