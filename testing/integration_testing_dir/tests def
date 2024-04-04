@@ -24,8 +24,16 @@ Test 7. Test update table function. Test that targeted tables are updated.
 Tests Historical data
 
 Test 1. Test process historical data. Set self.bot.df_dict[symbol] to be empty. Assert that new_index = 0
+-- Done
 Test 2. Test process historical data. Set self.bot.df_dict[symbol] to be not empty. Assert that new_index = self.bot.df_dict[symbol].index[-1] + 1
+-- Done
 Test 3. Test process historical data. Set self.bot.df_dict[symbol] to be not empty. Assert that self.bot.df_dict[symbol].loc[new_index] = passed dummy data (via bar argument)
+-- Done
+
+Realtime Data Tests
+
+Test 1. Test process realtime data. Test new data for existing date field. Pass dummy data. Assert that columns match expected values. Delete added dummy data
+Test 1. Test process realtime data. Test new data for non existing date field. Pass dummy data. Assert that columns match expected values. Delete added dummy data
 
 Tests Client Manager
 
@@ -39,7 +47,3 @@ Test 1. Test place order. Test that profit_target and stop_loss calculated corre
 Test 2. Test place order. Test that order_id has iterated correctly. Assert that it equals values 1,2,3. Use dummy data
 Test 3. Test place order. Test placing order. Using sample/dummy data place an order. Assert that get_order_status returns a placed order
 
-Realtime Data Tests
-
-Test 1. Test process realtime data. Test new data for existing date field. Pass dummy data. Assert that columns match expected values. Delete added dummy data
-Test 1. Test process realtime data. Test new data for non existing date field. Pass dummy data. Assert that columns match expected values. Delete added dummy data

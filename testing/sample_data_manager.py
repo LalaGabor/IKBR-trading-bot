@@ -4,6 +4,7 @@ import os
 import numpy
 import csv
 
+
 class Bar:
     def __init__(self, open_, high, low, close, volume, date, tick):
         self.open = open_
@@ -20,6 +21,16 @@ def sample_bar():
     return mock_bar
 
 
+# Empty Dataframe
+@pytest.fixture
+def sample_empty_dataframe():
+    no_data = pandas.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Volume', 'Date', 'Tick',
+                                                        'is_divergence_open_candidate', 'paired_divergence_opens_id',
+                                                        'paired_divergence_opens_closing_price', 'paired_divergence_opens_rsi',
+                                                        'is_divergence_high', 'rsi', 'symbol'])
+    return no_data
+
+
 @pytest.fixture
 def sample_dataframe():
     sample = pandas.DataFrame({'Open': [100],
@@ -28,6 +39,7 @@ def sample_dataframe():
                 'Close': [105],
                 'Volume': [1000],
                 'Date': ["2024-03-25"],
+                'Tick': ["2024-03-25"],
                 'is_divergence_open_candidate': [0],
                 'paired_divergence_opens_id': [0],
                 'paired_divergence_opens_closing_price': [0],
