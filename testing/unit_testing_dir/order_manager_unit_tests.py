@@ -1,8 +1,8 @@
 import pytest
-import unittest
 from unittest.mock import MagicMock, patch
-import os
+from datetime import datetime
 import order_manager_dir
+import pytz
 from testing.sample_data_manager import sample_dataframe
 
 
@@ -59,10 +59,14 @@ def test_calculate_profit_target(order_manager_factory, sample_dataframe):
 # Test the behaviour of order_id iteration when calling place_order_if_entry_conditions_met
 def test_place_order_if_entry_conditions_met(order_manager_factory, sample_dataframe):
 
-    target_date = '2024-03-18 13:25:00.000'
+    target_date = "2024-03-25"
     sample_bar = Bar(open_price=100.0, high_price=110.0, low_price=90.0, close_price=105.0, volume=1000, date=target_date)
 
     order_manager = order_manager_factory(sample_dataframe)
+
+    order_manager.orderId = 1
+
+    order_manager.place_order_if_entry_conditions_met(bar=sample_bar, symbol='symbol')
 
     # Check the high of the row related to the target date
     assert order_manager.orderId == 4
@@ -84,26 +88,39 @@ def test_load_order_id_file_not_found(order_manager_factory, sample_dataframe):
     with pytest.raises(FileNotFoundError):
         order_manager.load_order_id(file_path=non_existent_file_path)
 
-    #with unittest.mock.patch('builtins.open', new=MagicMock(side_effect=FileNotFoundError)):
+
+# Test if the order_id is correctly retrieved in load_order_id when updated with new data via write
 def test_load_order_id_correct_format(order_manager_factory, tmp_path, sample_dataframe):
+
+    # Get an order_manager object
     order_manager = order_manager_factory(sample_dataframe)
-    order_manager.order_id = 2
-    # Test if order_id is loaded correctly from the file
-    data = "2024-04-05 12345"
-    file_path = tmp_path / "order_id.txt"
+
+    order_manager.order_id = 2  # Set the order_manager object's order_id to 2
+    data = "2024-04-05 12345"  # Define the update data
+    file_path = tmp_path / "order_id.txt"  # Define the fake file's fake path
+
+    # Update the fake file with the update data
     with open(file_path, "w") as file:
         file.write(data)
 
-    order_manager.load_order_id()
+    # Calls load_order_id with the fake path to the fake file
+    order_manager.load_order_id(file_path=file_path)
     assert order_manager.orderId == 12345
 
+
 def test_load_order_id_incorrect_format(order_manager_factory, tmp_path, sample_dataframe):
+
+    # Get an order_manager object
     order_manager = order_manager_factory(sample_dataframe)
-    # Test if ValueError is raised when file has incorrect format
-    data = "2024-04-05"
-    file_path = tmp_path / "order_id.txt"
+
+    order_manager.order_id = 2  # Set the order_manager object's order_id to 2
+    data = "2024-04-05"  # Define the update data
+    file_path = tmp_path / "order_id.txt"  # Define the fake file's fake path
+
+    # Update the fake file with the update data
     with open(file_path, "w") as file:
         file.write(data)
 
+    # Assert that a ValueError will be raised after calling the load_order_id method with the fake file + fake path
     with pytest.raises(ValueError):
-        order_manager.load_order_id()
+        order_manager.load_order_id(file_path=file_path)

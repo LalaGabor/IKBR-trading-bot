@@ -1,8 +1,8 @@
 import pandas
 import pytest
 import os
-import numpy
 import csv
+from datetime import datetime
 
 
 class Bar:
@@ -49,6 +49,14 @@ def sample_dataframe():
                 'is_entry_candidate': [0],
                 'is_entry': [0],
                 'symbol': ["symbol"]})
+
+    # Convert 'Date' column to datetime format
+    sample['Date'] = pandas.to_datetime(sample['Date'])
+
+    # Convert 'Tick' column to datetime format
+    sample['Tick'] = pandas.to_datetime(sample['Tick'])
+
+
     return sample
 
 def sample_dataframe_query(symbol):
