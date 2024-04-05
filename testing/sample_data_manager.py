@@ -92,5 +92,5 @@ def big_sample_dataframe():
     parse_dates = ['Date']
     big_sample = pandas.read_csv(csv_file, delimiter=',', encoding='utf-8', quoting=csv.QUOTE_NONE,
                                  parse_dates=parse_dates)
-
+    big_sample['Tick'] = big_sample['Date']
     return big_sample
