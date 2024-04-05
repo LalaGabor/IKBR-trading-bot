@@ -8,7 +8,7 @@ from ibapi.contract import Contract
 import database_manager_dir
 import historical_data_manager_dir
 import realtime_data_manager_dir
-import technical_analysis
+import technical_analysis_manager_dir
 import threading_manager
 import order_manager_dir
 from ikbr_client_dir.ikbr_client import IBApi
@@ -81,7 +81,7 @@ class Bot:
             self.realtime_data_manager = realtime_data_manager_dir.RealtimeDataManager(self)
 
             # initialize a TechnicalAnalysisProcessor object, pass bot instance to object on init
-            self.technical_analysis_manager = technical_analysis.TechnicalAnalysisProcessor(self)
+            self.technical_analysis_manager = technical_analysis_manager_dir.TechnicalAnalysisProcessor(self)
 
             # initialize an OrderManager object, pass bot instance to object on init
             self.order_manager = order_manager_dir.OrderManager(self)

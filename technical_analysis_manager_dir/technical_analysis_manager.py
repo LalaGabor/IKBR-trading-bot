@@ -1,4 +1,4 @@
-from technical_analysis import EntryCalculator, DivergenceCalculator, RSICalculator
+from technical_analysis_manager_dir import EntryCalculator, DivergenceCalculator, RSICalculator
 import traceback
 import pandas
 

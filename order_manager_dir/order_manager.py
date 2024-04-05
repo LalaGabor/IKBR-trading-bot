@@ -31,13 +31,23 @@ class OrderManager:
                         self.orderId = 400
                         self.save_order_id()
         else:  # If file doesn't exist or the day has changed, initialize values
-            self.orderId = 400
+            self.orderId = 200
             self.save_order_id()
 
     def save_order_id(self):
         # Save orderId to a file
         with open("order_id.txt", "w") as file:
             file.write(f"{date.today()} {self.orderId}")  # write (or if exists, overwrite) the last order_id
+
+    def calculate_stop_loss(self, bar_close):
+        stop_loss_ratio = 0.99
+        stop_loss = bar_close * stop_loss_ratio
+        return stop_loss
+
+    def calculate_profit_target(self, bar_close):
+        profit_target_ratio = 1.01
+        profit_target = bar_close * profit_target_ratio
+        return profit_target
 
     def place_order_if_entry_conditions_met(self, bar, symbol):
         try:
@@ -48,14 +58,11 @@ class OrderManager:
                     (self.bot.df_dict[symbol].loc[self.bot.df_dict[symbol].index[-1], 'Date'].minute % 2 == 0):
                 print("entry conditions met, starting order placement")
                 # Define required attributes for creating order
-                #TODO check if the bar.close is in fact the right tick to use for setting the order attribut
-                print(bar.close)
-                profitTarget = bar.close * 1.01
-                print(profitTarget)
-                stopLoss = bar.close * 0.99
-                print(stopLoss)
+                #TODO check if the bar.close is in fact the right tick to use for setting profit_target / stop_loss
+                profit_target = self.calculate_profit_target(bar.close)
+                stop_loss = self.calculate_stop_loss(bar.close)
                 quantity = 1
-                bracket = self.bracket_order(self.orderId, "BUY", quantity, profitTarget, stopLoss, symbol)
+                bracket = self.bracket_order(self.orderId, "BUY", quantity, profit_target, stop_loss, symbol)
                 contract = self.bot.get_symbols_contract_object(symbol)
 
                 # Place the Bracket Order

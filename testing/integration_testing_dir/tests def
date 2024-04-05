@@ -46,6 +46,8 @@ Test that connection is established? Should be in bot section
 Order Manager Tests
 
 Test 1. Test place order. Test that profit_target and stop_loss calculated correctly. Assert that it equals values 1,2,3. Use dummy data
+-- Done
 Test 2. Test place order. Test that order_id has iterated correctly. Assert that it equals values 1,2,3. Use dummy data
+-- In progress
 Test 3. Test place order. Test placing order. Using sample/dummy data place an order. Assert that get_order_status returns a placed order
 
