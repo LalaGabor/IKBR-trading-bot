@@ -5,10 +5,10 @@ import threading
 import time
 import pandas
 from ibapi.contract import Contract
-import database
-import historical_data_processing
-import realtime_data_processing
-import technical_analysis
+import database_manager_dir
+import historical_data_manager_dir
+import realtime_data_manager_dir
+import technical_analysis_manager_dir
 import threading_manager
 import order_manager_dir
 from ikbr_client_dir.ikbr_client import IBApi
@@ -66,7 +66,7 @@ class Bot:
 
             # initialize a DatabaseManager object, pass bot instance to object on init
             # this object creates an engine that connects to local DB on init
-            self.mysql_connector = database.DatabaseManager(self)
+            self.mysql_connector = database_manager_dir.DatabaseManager(self)
 
             # initialize an IBAPI object, pass bot instance to object on init
             self.ibapi_client = IBApi(self, "Order Execution Client")
@@ -75,13 +75,13 @@ class Bot:
             self.threading_manager = threading_manager.ThreadingManager(self)
 
             # initialize a HistoricalDataManager object, pass bot instance to object on init
-            self.historical_data_manager = historical_data_processing.HistoricalDataManager(self)
+            self.historical_data_manager = historical_data_manager_dir.HistoricalDataManager(self)
 
             # initialize a RealtimeDataManager object, pass bot instance to object on init
-            self.realtime_data_manager = realtime_data_processing.RealtimeDataManager(self)
+            self.realtime_data_manager = realtime_data_manager_dir.RealtimeDataManager(self)
 
             # initialize a TechnicalAnalysisProcessor object, pass bot instance to object on init
-            self.technical_analysis_manager = technical_analysis.TechnicalAnalysisProcessor(self)
+            self.technical_analysis_manager = technical_analysis_manager_dir.TechnicalAnalysisProcessor(self)
 
             # initialize an OrderManager object, pass bot instance to object on init
             self.order_manager = order_manager_dir.OrderManager(self)

@@ -7,10 +7,9 @@ import traceback
 #Notes
 """
 -----------------
-1. I encountered a mysterious bug with SQLAlchemy's execute method not being defined/used properly. It was not 
+1. I encountered a mysterious issue with SQLAlchemy's execute method not being defined/used properly. It was not 
 related to package version. Instead of doing a deeper debugging I used the mysqlconnector + cursor to execute my 
 query to DB.
-
 -----------------
 """
 
@@ -33,7 +32,7 @@ class DatabaseManager:
             # make a mysql engine
             try:
                 self.mysql_engine = self.get_mysql_engine()
-                print("Connected to MySQL database using SQLAlchemy")
+                print("Connected to MySQL database_manager_dir using SQLAlchemy")
             except Exception as ex:
                 print("Error creating MySQL engine:", ex)
 
@@ -46,6 +45,7 @@ class DatabaseManager:
             print(f"Error initializing Database Manager object: {e}")
             traceback.print_exc()
     # define how to make a mysql engine
+
     def get_mysql_engine(self):
         try:
             user = 'root'
@@ -56,13 +56,14 @@ class DatabaseManager:
             engine = create_engine(f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}")
             # Specify the authentication plugin in the connection string
             #engine = create_engine(
-                #f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}?auth_plugin=mysql_native_password")
+                #f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database_manager_dir}?auth_plugin=mysql_native_password")
             return engine
         except Exception as e:
             print(f"Error creating mysql engine: {e}")
             traceback.print_exc()
     # the last bar of historical data and first bar of realtime data are the same tick, causing a duplication issue
     # this function solves that issue in the DB
+
     def deduplication_of_partial_historical_data(self, symbol, row_number):
         try:
             table_name = f"bot_{symbol.lower()}_debug"  # find debugging tables' name
@@ -76,7 +77,7 @@ class DatabaseManager:
 
                 last_row = self.bot.df_dict[symbol].iloc[row_number]  # get the latest row (for deduplication)
                 if self.delete_partial < 2:
-                    # Drop the row from the database where date matches the incoming (duplicate) row's date
+                    # Drop the row from the database_manager_dir where date matches the incoming (duplicate) row's date
 
                     delete_query = f"""
                                     DELETE FROM `trading_bot_debug`.`{table_name}`
@@ -103,6 +104,7 @@ class DatabaseManager:
             print(f"Error deduplicating data: {ex}")
             traceback.print_exc()
     # append the incoming data (initially stored in dataframe) to the mysql table
+
     def append_data_to_mysql(self, incoming_row, symbol):
         try:
             # Generate a dynamic table name based on the symbol
@@ -110,7 +112,6 @@ class DatabaseManager:
 
             # Fix Date's datatype for conversion to MySQL
             incoming_row['Date'] = pandas.to_datetime(incoming_row['Date'])
-
             # Force last_row to be a DataFrame
             # Force the Dataframe to have the specified columns, otherwise the index is included,...
             # ...which sql table does not expect
@@ -142,7 +143,7 @@ class DatabaseManager:
                 elif isinstance(value, pandas.Timestamp):
                     incoming_row[column] = value.strftime('%Y-%m-%d %H:%M:%S')
 
-            # Append data to MySQL database using SQLAlchemy with the dynamic table name
+            # Append data to MySQL database_manager_dir using SQLAlchemy with the dynamic table name
             try:
                 with self.mysql_engine.connect() as connection:
                     last_row.to_sql(table_name, connection, if_exists='append', index=False, schema="trading_bot_debug")
@@ -152,7 +153,8 @@ class DatabaseManager:
         except Exception as e:
             print(f"Error appending data: {e}")
             traceback.print_exc()
-    # Drop tables from database on script start (assuming you dont want history stored), see flag in main
+
+    # Drop tables from database_manager_dir on script start (assuming you don't want history stored), see flag in main
     def drop_tables_if_exist(self):
         try:
             metadata = MetaData()  # get a metadata object to execute a drop query in DB
@@ -170,9 +172,11 @@ class DatabaseManager:
             traceback.print_exc()
     # rows are processed as the come in and thus appended. Some functions though will update previous rows in
     # dataframe and this updates those rows in the DB
-    def update_open_candidate_row(self, symbol, row_number):
+
+    def update_open_candidate_row(self, symbol, row_number, table_name=None):
         try:
-            table_name = f"bot_{symbol.lower()}_debug"  # find debugging tables' name
+            if table_name is None:  # Conditional to allow for passing a table name during testing
+                table_name = f"bot_{symbol.lower()}_debug"  # find table related to passed symbol name
 
             # ensure source dataframe is long enough
             if len(self.bot.df_dict[symbol]) < 12:
