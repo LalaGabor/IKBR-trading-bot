@@ -20,26 +20,24 @@ class TechnicalAnalysisProcessor:
             traceback.print_exc()
 
     def calculate_ta_indicators(self, symbol, row_number, bar, realtime=False):
+
         try:
             RSICalculator.append_rsi_to_dataframe(self.bot.df_dict[symbol])
         except Exception as e:
             print(f"Error calculating rsi in calculate_ta_indicators: {e}")
             traceback.print_exc()
-
         # calculate divergence, first get the open candidates (local peaks)
         try:
             self.divergence_calc.get_open_candidate(self.bot.df_dict[symbol], row_number)
         except Exception as e:
             print(f"Error in get_open_candidates_nearest_open in calculate_ta_indicators: {e}")
             traceback.print_exc()
-
         # Next, identify close candidates, for given open candidates
         try:
             self.divergence_calc.get_close_candidates_nearest_open(self.bot.df_dict[symbol], row_number)
         except Exception as e:
             print(f"Error in get_close_candidates_nearest_open in calculate_ta_indicators: {e}")
             traceback.print_exc()
-
         # Next, ensure the close is not also an open
         try:
             self.divergence_calc.limit_divergence_to_accepted_row(self.bot.df_dict[symbol], row_number)
@@ -47,46 +45,38 @@ class TechnicalAnalysisProcessor:
             print(f"Error in limit_divergence_to_accepted_row in calculate_ta_indicators: {e}")
             traceback.print_exc()
 
-
         # Next confirm that open + close candidate fulfill divergence criteria
         try:
             self.divergence_calc.calculate_divergence(self.bot.df_dict[symbol], row_number)
         except Exception as e:
             print(f"Error in calculate_divergence in calculate_ta_indicators: {e}")
             traceback.print_exc()
-
         # Find the entry candidates, rows that meet strategy criteria
         try:
             self.entry_calc.get_entry_candidates(self.bot.df_dict[symbol], row_number)
         except Exception as e:
             print(f"Error in calculate_divergence in calculate_ta_indicators: {e}")
             traceback.print_exc()
-
         # Limit entry rows to first in local tick range
         try:
             self.entry_calc.get_entry_row(self.bot.df_dict[symbol], row_number)
         except Exception as e:
             print(f"Error in calculate_divergence in calculate_ta_indicators: {e}")
             traceback.print_exc()
-
         if realtime:
             print("starting ordermanager from inside ta manager")
             self.bot.order_manager.place_order_if_entry_conditions_met(bar, symbol)
-
         # Define the incoming row
         incoming_row = self.bot.df_dict[symbol].iloc[row_number]
-
         # Use the bots inited connector object to append to the database_manager_dir
         try:
             self.bot.mysql_connector.append_data_to_mysql(incoming_row, symbol)
         except Exception as e:
             print(f"Error in appending data to mysql in calculate_ta_indicators: {e}")
             traceback.print_exc()
-
         # Use a mysql-connector cursor object to update the relevant row in DB for "is_divergence_open_candidate"
         try:
             self.bot.mysql_connector.update_open_candidate_row(symbol, row_number)
         except Exception as e:
             print(f"Error in updating is_divergence_open_candidate in calculate_ta_indicators: {e}")
             traceback.print_exc()
-
