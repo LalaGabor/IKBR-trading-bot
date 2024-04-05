@@ -90,4 +90,3 @@ def test_process_historical_bars_exception_raising(historical_data):
             historical_data.incoming_historical_data(reqID=1, bar=mock_bar)
 
         assert str(exception_info.value) == "Simulated Exception"
-

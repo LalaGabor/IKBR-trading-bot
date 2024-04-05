@@ -51,7 +51,7 @@ class RealtimeDataManager:
     # process realtime data for dataframe appending
     def process_realtime_bars(self, bar, symbol):
         try:
-            # Check which rows in the Date column of the dataframe of the symbol are equal to incoming bar's date
+            # Check which row in the Date column of the symbol's dataframe is equal to incoming bar's date
             incoming_bars_date = self.bot.df_dict[symbol]['Date'] == bar.date
             # Append incoming data to dataframe, based on the bar's date
             if incoming_bars_date.any():  # if any rows in the Date column of the dataframe of the symbol

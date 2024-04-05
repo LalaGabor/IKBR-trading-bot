@@ -33,6 +33,7 @@ Test 3. Test process historical data. Set self.bot.df_dict[symbol] to be not emp
 Realtime Data Tests
 
 Test 1. Test process realtime data. Test new data for existing date field. Pass dummy data. Assert that columns match expected values. Delete added dummy data
+-- In progress
 Test 1. Test process realtime data. Test new data for non existing date field. Pass dummy data. Assert that columns match expected values. Delete added dummy data
 
 Tests Client Manager
