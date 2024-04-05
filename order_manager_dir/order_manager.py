@@ -19,20 +19,23 @@ class OrderManager:
 
     def load_order_id(self):
         # Check if the file exists
-        if os.path.exists("order_id.txt"):
+        if not os.path.exists("order_id.txt"):
+            raise FileNotFoundError("Order ID file 'order_id.txt' not found.")
+
+        try:
             with open("order_id.txt", "r") as file:
                 data = file.read().split()  # read the last entry in the order_id logger file
                 if len(data) == 2:
                     saved_day, saved_order_id = data  # save date and order_id as a tuple
-                    if saved_day == str(date.today()):
-                        self.orderId = int(saved_order_id)  # return order_id as an integer
-                        return
-                    else:  # If file doesn't exist or the day has changed, initialize values
-                        self.orderId = 400
-                        self.save_order_id()
-        else:  # If file doesn't exist or the day has changed, initialize values
-            self.orderId = 200
-            self.save_order_id()
+                    self.orderId = int(saved_order_id)  # return order_id as an integer
+                    # Learning for Sebo, a naked return, returns None. It effectively enables an early end to the
+                    # function, should there be no file found
+                    return
+                else:
+                    raise ValueError("Incorrect format in order_id.txt file.")
+        except Exception as e:
+            print(f"Error loading order ID: {e}")
+            traceback.print_exc()
 
     def save_order_id(self):
         # Save orderId to a file
