@@ -75,18 +75,18 @@ def test_process_historical_bars3(historical_data_manager_factory, sample_datafr
 
 
 # Test case to ensure that the function handles exceptions from process_historical_bars
-def test_process_historical_bars_exception_raising(historical_data):
+def test_process_historical_bars_exception_raising(historical_data_manager_factory, sample_dataframe):
     # Create a MagicMock object for the bar argument
     mock_bar = MagicMock()
-
+    historical_data_manager = historical_data_manager_factory(sample_dataframe)
     # Learning: patch temporarily replaces the mocked object, so that any alterations for testing purposes....
     # .... are temporary.
     # Mock the process_historical_bars method to raise an exception, to ensure exceptions are being raised
-    with patch.object(historical_data, "process_historical_bars") as mock_process_historical_bars:
+    with patch.object(historical_data_manager, "process_historical_bars") as mock_process_historical_bars:
         mock_process_historical_bars.side_effect = Exception("Simulated Exception")
 
         # Call the function being tested
         with pytest.raises(Exception) as exception_info:
-            historical_data.incoming_historical_data(reqID=1, bar=mock_bar)
+            historical_data_manager.incoming_historical_data(reqID=1, bar=mock_bar)
 
         assert str(exception_info.value) == "Simulated Exception"
