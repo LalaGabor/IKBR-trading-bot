@@ -1,4 +1,5 @@
 import pytest
+import unittest
 from unittest.mock import MagicMock, patch
 import os
 import order_manager_dir
@@ -22,7 +23,6 @@ def order_manager_factory():
         bot_mock = MagicMock()  # create magic mock object
         symbol = 'symbol'  # Create dummy symbol string
         bot_mock.df_dict = {symbol: sample_data}  # assign dummy data to key inside dictionary
-        bot_mock.order_id = 1
         return order_manager_dir.OrderManager(bot_mock)
         # Create and return a mocked DatabaseManager instance
     return _order_manager
@@ -68,14 +68,26 @@ def test_place_order_if_entry_conditions_met(order_manager_factory, sample_dataf
     assert order_manager.orderId == 4
 
 
-def test_load_order_id_file_not_found(order_manager_factory, tmp_path, sample_dataframe):
-    order_manager = order_manager_factory(sample_dataframe)
-    # Test if FileNotFoundError is raised when file does not exist
-    with pytest.raises(FileNotFoundError):
-        order_manager.load_order_id()
+# Let's document what is going for learning purposes. As per usual, we pass the order_manager_factory and
+# sample_dataframe arguments when creating our test case, as it relies on the factory to generate our tested class(
+# containing a mocked bot object). This makes that fixture & sample data object available.......
+#.....We specify a fake path and then call the order_manager's load_order_id method with the fake path. When the
+# method is called, it should return a FileNotFoundError as the fake file does not exist. This simulates the
+# behaviour of the script should the real file be missing. Note: we call this load_order_id method in our test case
+# from within a pytest context manager: pytest.raises(FileNotFoundError). This is somewhat magical pytest syntax that
+# says: Assert that what is called inside this context manager, will raise a FileNotFoundError.
+def test_load_order_id_file_not_found(order_manager_factory, sample_dataframe):
 
+    non_existent_file_path = "/path/to/nonexistent_file.txt"
+    order_manager = order_manager_factory(sample_dataframe)
+    # Testing whether FileNotFoundError is raised
+    with pytest.raises(FileNotFoundError):
+        order_manager.load_order_id(file_path=non_existent_file_path)
+
+    #with unittest.mock.patch('builtins.open', new=MagicMock(side_effect=FileNotFoundError)):
 def test_load_order_id_correct_format(order_manager_factory, tmp_path, sample_dataframe):
     order_manager = order_manager_factory(sample_dataframe)
+    order_manager.order_id = 2
     # Test if order_id is loaded correctly from the file
     data = "2024-04-05 12345"
     file_path = tmp_path / "order_id.txt"

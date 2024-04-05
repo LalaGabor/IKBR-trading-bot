@@ -47,8 +47,6 @@ def test_exception_raised_for_handle_realtime_bars(realtime_data):
             realtime_data.handle_realtime_bars(bar=mock_bar, symbol = mock_symbol)
 
         assert str(exception_info.value) == "Simulated Exception"
-#----------------------
-
 
 @pytest.fixture  # Use decorator function to turn following function definition into an argument
 def realtime_data_manager_factory():

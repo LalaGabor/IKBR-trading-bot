@@ -17,13 +17,9 @@ class OrderManager:
             print(f"Error initializing OrderManager: {e}")
             traceback.print_exc()
 
-    def load_order_id(self):
-        # Check if the file exists
-        if not os.path.exists("order_id.txt"):
-            raise FileNotFoundError("Order ID file 'order_id.txt' not found.")
-
+    def load_order_id(self, file_path="order_id.txt"):
         try:
-            with open("order_id.txt", "r") as file:
+            with open(file_path, "r") as file:
                 data = file.read().split()  # read the last entry in the order_id logger file
                 if len(data) == 2:
                     saved_day, saved_order_id = data  # save date and order_id as a tuple
@@ -33,9 +29,11 @@ class OrderManager:
                     return
                 else:
                     raise ValueError("Incorrect format in order_id.txt file.")
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Order ID file '{file_path}' not found.")
         except Exception as e:
             print(f"Error loading order ID: {e}")
-            traceback.print_exc()
+            raise
 
     def save_order_id(self):
         # Save orderId to a file
