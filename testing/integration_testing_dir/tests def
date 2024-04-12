@@ -52,3 +52,11 @@ Test 2. Test place order. Test that order_id has iterated correctly. Assert that
 Test 3. Test place order. Test placing order. Using sample/dummy data place an order. Assert that get_order_status returns a placed order
 -- Done
 
+Bot Tests:
+
+Test DataFrame Creation: Verify that the DataFrame objects are created successfully for each symbol.
+This test could involve checking if the DataFrame has the expected columns and if it is initialized correctly.
+-- In Progress
+Test Symbol Subscription: Check if symbols are correctly subscribed to the TWS API and if the corresponding contract objects are generated accurately.
+This could involve mocking the subscription process and asserting that the correct contracts are created.
+-- In Progress

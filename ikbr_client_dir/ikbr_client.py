@@ -35,6 +35,7 @@ class IBApi(EWrapper, EClient):
         except Exception as e:
             print(f"Error initializing IBApi object: {e}")
             traceback.print_exc()
+
     # Gets historical data, when it is made available
     # It is made available by ib.reqHistoricalData
     def historicalData(self, reqId, bar):
@@ -69,8 +70,8 @@ class IBApi(EWrapper, EClient):
             print(f"Error in historicalDataEnd callback method: {e}")
             traceback.print_exc()
 
-
-    #Get the next order id that can be used
+    # Gets the next order id that can be used
+    # This callback is automatically triggered when reqHistoricalData method is called
     def nextValidId(self, orderId):
         print(f"Next valid order ID received: {orderId}")
         # Save orderId to a file

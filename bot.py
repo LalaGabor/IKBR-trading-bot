@@ -16,18 +16,13 @@ from ikbr_client_dir.ikbr_client import IBApi
 
 ##TODO Fix Divergence bug in source script
 ##TODO Divergence Opens do not deactivate old opens fast enough? Check with backtest scripts for required logic
-
-
-## todo merge branch with main
 ##todo clean up comments
-##todo make some magic numbers global/class variables
-##todo refactor reference to parent variables, if possible
-##todo fix Error processing realtime data: place_order_if_entry_conditions_met() takes 3 positional arguments but 4 were given
-##todo add try except everywhere
-
 
 # Suppress the SettingWithCopy warning
 pandas.options.mode.chained_assignment = None
+
+#Set script level parameters
+symbol_list = ["ENEL"] #, "ENI"]#, "ISP", "UCG", "G", "PIRC", "SPM", "UNI", "BAMI", "LDO"]
 
 
 # The Bar constructor is used to format incoming data from the TWS API
@@ -49,27 +44,39 @@ class Bot:
     # ... so the value must be adapted to bar_size)
     df_dict = {}  # Dictionary to store DataFrames for each symbol
     reqID = 1
-    symbols = ["ENEL"] #, "ENI"]#, "ISP", "UCG", "G", "PIRC", "SPM", "UNI", "BAMI", "LDO"]
     sym_dict = {}  # stores a symbol, reqID pair
 
-    # what is automatically run when an instance of the class is created
-    def __init__(self):
+    # The init is automatically run when an instance of the class is created
+    def __init__(self, symbol_list, create_clients=True):
         try:
-            # Connect to TWS API on init
-            self.ib = IBApi(self, "Communicator Client")  # Note: you can not create multiple bot objects, as TWS API
-            # won't accept
-            # multiple
-            # clients on same port
-            self.ib.connect("127.0.0.1", 7497, 1)  # pass connection details to TWS API
-            print("Connected to Interactive Brokers")
-            time.sleep(1)
+            # Ingest the symbol_list
+            self.symbols = symbol_list
+
+            # Set the create_clients Flag (to allow for tests without the client running)
+            self.create_clients = create_clients
+            if self.create_clients:
+                try:
+                    # Connect to TWS API on init
+                    self.ib = IBApi(self, "Communicator Client")  # Note: you can not create multiple bot objects, as TWS API
+                    # Note: IBApi won't accept multiple clients on same port
+                    self.ib.connect("127.0.0.1", 7497, 1)  # Pass connection details to TWS API
+                    print("Connected to Interactive Brokers")
+                    time.sleep(1)
+                except Exception as e:
+                    print(f"Error in initializing IB client: {e}")
+                    traceback.print_exc()
 
             # initialize a DatabaseManager object, pass bot instance to object on init
             # this object creates an engine that connects to local DB on init
             self.mysql_connector = database_manager_dir.DatabaseManager(self)
 
-            # initialize an IBAPI object, pass bot instance to object on init
-            self.ibapi_client = IBApi(self, "Order Execution Client")
+            if self.create_clients:
+                try:
+                    # initialize an IBAPI object, pass bot instance to object on init
+                    self.ibapi_client = IBApi(self, "Order Execution Client")
+                except Exception as e:
+                    print(f"Error in initializing IB client: {e}")
+                    traceback.print_exc()
 
             # initialize a ThreadingManager object, pass bot instance to object on init
             self.threading_manager = threading_manager.ThreadingManager(self)
@@ -147,16 +154,33 @@ class Bot:
     # Open a communication thread with TWS API for handling connection & order placement
     # created on init of bot class instance
     def run_loop(self):
-        try:
-            self.ib.run()
-        except Exception as e:
-            print(f"Error in starting listener run_loop: {e}")
-            traceback.print_exc()
+        if self.create_clients == True:
+            try:
+                self.ib.run()
+            except Exception as e:
+                print(f"Error in starting listener run_loop: {e}")
+                traceback.print_exc()
 
-#TODO add if name == main conditional
-# Start bot, this opens connection to TWS API
-bot = Bot()
-# Get required attributes to start incoming data threads
-bot.threading_manager.initialize_threading_attributes()
-# Start ingesting data from API, which subsequently triggers order placement
-bot.threading_manager.start_threads()
+
+# Learning about if __name__ == "__main"
+"""
+## Learning for Sebo
+## 'if __name__ == "__main__" is to prevent global code execution
+## Typcially, when code is imported, it actually runs all the code in the imported file function/class definitions of
+# course do not trigger any executions but any code outside these constructs, e.g. calling a function, 
+# will be triggered, if not wrapped inside the conditional.
+## Note: when python imports a module, it sets __name__ to the name of the module being imported. But when python 
+# executes a module, it sets __name__ equal to __main__, thus the logic of the conditional
+"""
+# Script execution
+if __name__ == "__main__":
+    #TODO add if name == main conditional
+    # Start bot, this opens connection to TWS API
+    bot = Bot(symbol_list)
+    print("start bot")
+    # Get required attributes to start incoming data threads
+    bot.threading_manager.initialise_threading_attributes()
+    print("initialising threads")
+    # Start ingesting data from API, which subsequently triggers order placement
+    bot.threading_manager.start_threads()
+    print("started threads")
