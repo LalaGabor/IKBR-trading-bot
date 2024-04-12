@@ -53,10 +53,7 @@ Test 3. Test place order. Test placing order. Using sample/dummy data place an o
 -- Done
 
 Bot Tests:
-
 Test DataFrame Creation: Verify that the DataFrame objects are created successfully for each symbol.
-This test could involve checking if the DataFrame has the expected columns and if it is initialized correctly.
--- In Progress
+-- Done
 Test Symbol Subscription: Check if symbols are correctly subscribed to the TWS API and if the corresponding contract objects are generated accurately.
-This could involve mocking the subscription process and asserting that the correct contracts are created.
--- In Progress
+-- Done
