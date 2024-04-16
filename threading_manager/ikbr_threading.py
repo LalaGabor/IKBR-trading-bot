@@ -22,7 +22,7 @@ class ThreadingManager:
             traceback.print_exc()
 
     # Threading attributes are required to be defined before initializing threads
-    def initialize_threading_attributes(self):
+    def initialise_threading_attributes(self):
         try:
             for symbol in self.bot.symbols:  # for each symbol, reqID key/value pair in sym_dict....
                 self.bot.threading_attributes_by_symbol[symbol] = {  # create a new dictionary of symbol specific
