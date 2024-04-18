@@ -30,13 +30,13 @@ class EntryCalculator:
                 last_row = pandas_dataframe.iloc[row_number]
 
                 if 'is_entry_candidate' in pandas_dataframe.columns:
-
+                    # Check if any of the last 5 rows have an entry candidate
                     if pandas_dataframe.loc[pandas_dataframe.index[row_number - 5:row_number], 'is_entry_candidate'].eq(1).any():
                         pandas_dataframe.loc[pandas_dataframe.index[row_number], 'is_entry'] = 0
-
+                    # Check if the current row is an entry candidate
                     elif pandas_dataframe.loc[pandas_dataframe.index[row_number], 'is_entry_candidate'] == 1:
                         pandas_dataframe.loc[pandas_dataframe.index[row_number], 'is_entry'] = 1
-
+                    # Else the current row is not an entry candidate
                     else:
                         pandas_dataframe.loc[pandas_dataframe.index[row_number], 'is_entry'] = 0
 

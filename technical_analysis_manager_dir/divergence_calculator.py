@@ -70,6 +70,8 @@ class DivergenceCalculator:
             print(f"Error in get_close_candidates_nearest_open: {e}")
             traceback.print_exc()
 
+    # Ensures that the 5 rows following a divergence candidate open can not be evaluated as a close (prevent open &
+    # closes too close to each other)
     def limit_divergence_to_accepted_row(self, pandas_dataframe, row_number):
         try:
             if len(pandas_dataframe) >= 11:
