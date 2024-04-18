@@ -63,7 +63,8 @@ def realtime_data_manager_factory():
 # the respective dataframe
 def test_process_realtime_bars_for_existing_date(realtime_data_manager_factory, big_sample_dataframe):
 
-    target_date = '2024-03-18 13:25:00.000'
+    target_date = '2024-03-18 13:25:00.000'  # This date already exists in the big_sample_dataframe
+    # Here a Bar object with a higher high_price is stored in sample_bar
     sample_bar = Bar(open_price=100.0, high_price=110.0, low_price=90.0, close_price=105.0, volume=1000, date=target_date)
 
     realtime_data_manager = realtime_data_manager_factory(big_sample_dataframe)
