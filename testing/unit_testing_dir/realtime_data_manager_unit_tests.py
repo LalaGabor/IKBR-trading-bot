@@ -48,7 +48,7 @@ def test_exception_raised_for_handle_realtime_bars(realtime_data):
 
         assert str(exception_info.value) == "Simulated Exception"
 
-@pytest.fixture  # Use decorator function to turn following function definition into an argument
+@pytest.fixture  # Use decorator function to turn following function definition into an pytest object
 def realtime_data_manager_factory():
     def _realtime_data_manager(sample_data):
         bot_mock = MagicMock()  # create magic mock object
