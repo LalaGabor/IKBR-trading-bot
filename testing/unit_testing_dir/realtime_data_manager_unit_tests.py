@@ -55,7 +55,7 @@ def realtime_data_manager_factory():
         symbol = 'symbol'  # Create dummy symbol string
         bot_mock.df_dict = {symbol: sample_data}  # assign dummy data to key inside dictionary
         return realtime_data_manager_dir.RealtimeDataManager(bot_mock)
-        # Create and return a mocked DatabaseManager instance
+        # Create and return a mocked RealtimeDataManager instance
     return _realtime_data_manager
 
 
