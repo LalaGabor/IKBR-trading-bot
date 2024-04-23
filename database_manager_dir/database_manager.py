@@ -3,7 +3,8 @@ from sqlalchemy import create_engine, MetaData, Table, text
 import numpy
 import pandas
 import traceback
-
+import os
+import dotenv
 #Notes
 """
 -----------------
@@ -12,6 +13,7 @@ related to package version. Instead of doing a deeper debugging I used the mysql
 query to DB.
 -----------------
 """
+load_dotenv()
 
 class DatabaseManager:
 
@@ -48,7 +50,10 @@ class DatabaseManager:
 
     def get_mysql_engine(self):
         try:
+            #TODO replace credentials with environment variabls
+            #user = os.getenv("DB_USER")
             user = 'root'
+
             password = 'VZe1x2sF1HTyLp9r27Ka'
             host = 'localhost'
             port = 3306

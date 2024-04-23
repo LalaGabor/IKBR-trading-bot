@@ -173,6 +173,93 @@ def test_calculate_divergence(big_sample_dataframe):
     # Assert the last row entry in the column 'is_divergence_high' of the evaluation dataframe is equal to 1
     assert evaluation_df['is_divergence_high'].iloc[-1] == 1
 
+
+def test_get_entry_candidates(big_sample_dataframe):
+
+    evaluation_date = '2024-03-18 13:26:00.000'  # This is the date of the row whose 'is_entry_candidate' is being
+    # evaluated
+
+    # Create a sample dataframe via big_sample_dataframe
+    symbol = 'symbol'
+    sample_data = {symbol: big_sample_dataframe}
+
+    # Set the 'rsi' value == 90 ...
+    # ...(to force it larger than 65, to pass the logic check)
+    sample_data['symbol'].loc[sample_data['symbol']['Date'] == evaluation_date, 'rsi'] = 90
+
+    # Set the 'is_divergence_high' value = 1 ...
+    # ...(to force it to pass the logic check)
+    sample_data['symbol'].loc[sample_data['symbol']['Date'] == evaluation_date,
+                              'is_divergence_high'] = 1
+
+    # Create an instance of DivergenceCalculator
+    divergence_calculator_instance = technical_analysis_manager_dir.EntryCalculator()
+
+    # Get the row_number of the evaluation date in the dataframe
+    evaluation_row = int(sample_data['symbol'][sample_data['symbol']['Date'] == evaluation_date].index.tolist()[0])
+
+    # Call the calculate_divergence method
+    divergence_calculator_instance.get_entry_candidates(sample_data['symbol'], row_number=evaluation_row)
+
+    # Define the evaluation dataframe using the evaluation_date
+    evaluation_df = sample_data['symbol'].loc[sample_data['symbol']['Date'] == evaluation_date]
+
+    # Assert the last row entry in the column 'is_divergence_high' of the evaluation dataframe is equal to 1
+    assert evaluation_df['is_entry_candidate'].iloc[-1] == 1
+
+
+def test_get_entry_row(big_sample_dataframe):
+
+    evaluation_date = '2024-03-18 13:26:00.000'  # This is the date of the row whose 'is_entry' is being evaluated
+
+    update_date = '2024-03-18 13:10:00.000'  # This is the second date of the row whose 'is_entry' is being
+    # evaluated
+
+    # Create a sample dataframe via big_sample_dataframe
+    symbol = 'symbol'
+    sample_data = {symbol: big_sample_dataframe}
+
+    # Set the 'is_entry_candidate' value = 1, for the 'evaluation_date'...
+    # ...(to force the call with 'evaluation_date' to pass the first logic check)
+    sample_data['symbol'].loc[sample_data['symbol']['Date'] == evaluation_date, 'is_entry_candidate'] = 1
+
+    # Set the 'is_entry_candidate' value = 1, for the 'evaluation_date2'...
+    # ...(to force the call with 'evaluation_date2' to fail the first logic check)
+    sample_data['symbol'].loc[sample_data['symbol']['Date'] == update_date,
+                              'is_entry_candidate'] = 1
+
+    # Create an instance of DivergenceCalculator
+    divergence_calculator_instance = technical_analysis_manager_dir.EntryCalculator()
+
+    # Get the row_number of the evaluation date in the dataframe (Check that logic passes)
+    # Note: the sample dataframe contains 160 rows, to arrive at the correct negative index value (for later iloc
+    # processing), the following formula is required.
+    #TODO: Remove 'magic' number 160 by storing in variable in sample_data_manager
+    evaluation_row = -1 * (160 - int(sample_data['symbol'][sample_data['symbol']['Date'] ==
+                                                        evaluation_date].index.tolist()[0]))
+
+    # Set the evaluation row equal to a row following the update_date row
+    evaluation_row2 = -1 * (160 +1 - int(sample_data['symbol'][sample_data['symbol']['Date'] ==
+                                                        update_date].index.tolist()[0]))
+
+    # Call the calculate_divergence method with evaluation_row
+    divergence_calculator_instance.get_entry_row(sample_data['symbol'], row_number=evaluation_row)
+
+    # Call the calculate_divergence method with evaluation_row2
+    divergence_calculator_instance.get_entry_row(sample_data['symbol'], row_number=evaluation_row2)
+
+    # Define the evaluation dataframe using the evaluation_date
+    evaluation_df = sample_data['symbol'].loc[sample_data['symbol']['Date'] == evaluation_date]
+
+    # Define the evaluation dataframe using the evaluation_date2
+    evaluation_df2 = sample_data['symbol'].loc[sample_data['symbol']['Date'] == update_date]
+
+    # Assert the value in the column 'is_entry' of the evaluation dataframe is equal to 1
+    assert evaluation_df['is_entry'].iloc[-1] == 1
+    # Assert the value in the column 'is_entry' of the evaluation2 dataframe is NOT equal to 1
+    assert not evaluation_df2['is_entry'].iloc[-1] == 1
+
+
 # Def Tests
 """
 Test 1: rsi calculator module: test_append_rsi_to_dataframe.
@@ -240,7 +327,7 @@ is_entry_candidate == 1 are met (if last_row['rsi'] >= 65 and last_row['is_diver
 
 -- Implementation: ingest large sample dataframe. Make assertion using expected row number(s)
 
--- Status: In progress
+-- Status: Done
 
 Test 7: entry calculator module: test_get_entry_row.
 -- Test preparation. Find a row(s) number in the sample big dataframe where is_entry_candidate == 1
@@ -249,6 +336,6 @@ Test 7: entry calculator module: test_get_entry_row.
 
 -- Implementation: ingest large sample dataframe. Make assertion using expected row number(s)
 
--- Status: Open
+-- Status: In progress
 
 """
