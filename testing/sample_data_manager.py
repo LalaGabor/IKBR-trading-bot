@@ -102,3 +102,15 @@ def big_sample_dataframe():
                                  parse_dates=parse_dates)
     big_sample['Tick'] = big_sample['Date']
     return big_sample
+
+"""
+---------------------------------
+"""
+## For Debugging Divergence Calculator...REMOVE ME
+def big_sample_dataframe2():
+    csv_file = os.path.join(os.path.dirname(__file__), 'sample_csv_data.csv')
+    parse_dates = ['Date']
+    big_sample = pandas.read_csv(csv_file, delimiter=',', encoding='utf-8', quoting=csv.QUOTE_NONE,
+                                 parse_dates=parse_dates)
+    big_sample['Tick'] = big_sample['Date']
+    return big_sample

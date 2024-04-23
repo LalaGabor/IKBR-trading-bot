@@ -53,6 +53,9 @@ def test_get_open_candidate(big_sample_dataframe):
 def test_get_close_candidates_nearest_open(big_sample_dataframe):
 
     update_date = '2024-03-18 12:54:00.000'  # This is the date of the row whose divergence open value is being
+    # updated, to ensure later rows will have a pair
+
+    evaluation_date = '2024-03-18 13:26:00.000'  # This is the date of the row whose divergence open value is being
     # evaluated
 
     # Create a sample dataframe via big_sample_dataframe
@@ -66,22 +69,109 @@ def test_get_close_candidates_nearest_open(big_sample_dataframe):
     # use case below, we conditionally select the row where the ['Date']  == update_date
     sample_data['symbol'].loc[sample_data['symbol']['Date'] == update_date, 'is_divergence_open_candidate'] = 1
 
+    print(sample_data['symbol'].loc[sample_data['symbol']['Date'] == update_date, 'is_divergence_open_candidate'])
+
+    # Create an instance of DivergenceCalculator
+    divergence_calculator_instance = technical_analysis_manager_dir.DivergenceCalculator()
+
+    # Call the get_close_candidates_nearest_open
+    divergence_calculator_instance.get_close_candidates_nearest_open(sample_data['symbol'], row_number=-1)
+
+
+    """
+    --------------------
     # Learning: Here the 'spec=' keyword informs the MagicMock class constructor which object is being mocked. It
     # therefore defines which methods and attributes that the mocked object should have.
     mocked_divergence_calculator = MagicMock(spec=technical_analysis_manager_dir.DivergenceCalculator)
 
+    # Configure the return value of the mocked method
+    mocked_divergence_calculator.get_close_candidates_nearest_open.return_value = sample_data['symbol']
+
     # Call the get_open_candidate method
     mocked_divergence_calculator.get_close_candidates_nearest_open(sample_data, row_number=-1)
+    ----------------------
+    """
 
+
+    print(sample_data['symbol'].loc[sample_data['symbol']['Date']== update_date, 'is_divergence_open_candidate'])
     # Select the row which contains the target date (for later test assertion)
-    filtered_df = sample_data['symbol'].loc[sample_data['symbol']['Date'] == update_date]
-
+    evaluation_df = sample_data['symbol'].loc[sample_data['symbol']['Date'] == evaluation_date]
+    print(evaluation_df)
+    print(evaluation_df['paired_divergence_opens_id'].iloc[-1])
     # Learning: Why do I need to specify [0] in the below iloc call (integer based indexing)
     # Answer: Every call of the '.iloc' property requires an integer to specify the row and then column. Example
     # syntax: df.iloc[1, 0] will access the second [1] row, of the first [0] column. In the below use case we specify
     # the column by label, so we only need to specify the row by integer, i.e. [0]
-    assert filtered_df['paired_divergence_opens_id'].iloc[0] == 127
+    assert evaluation_df['paired_divergence_opens_id'].iloc[-1] == 128
 
+
+def test_limit_divergence_to_accepted_row(big_sample_dataframe):
+
+    update_date = '2024-03-18 12:54:00.000'  # This is the date of the row whose divergence open value is being
+    # updated, to ensure later rows will have a pair
+
+    evaluation_date = '2024-03-18 12:55:00.000'  # This is the date of the row whose divergence open value is being
+    # evaluated
+
+    # Create a sample dataframe via big_sample_dataframe
+    symbol = 'symbol'
+    sample_data = {symbol: big_sample_dataframe}
+
+    # Set the 'is_divergence_open_candidate' value == 1, at the update date
+    sample_data['symbol'].loc[sample_data['symbol']['Date'] == update_date, 'is_divergence_open_candidate'] = 1
+
+    # Create an instance of DivergenceCalculator
+    divergence_calculator_instance = technical_analysis_manager_dir.DivergenceCalculator()
+
+    # Learning: How to find the row number of the targeted evaluation_date's row, based on update_date?
+    # Answer: We find the row number of the update_date's row and add 1. Using '.index' returns an index object. By
+    # converting the index object to a list with '.tolist()' we make the contents of the object available. Then
+    # select the first item in the list with [0] and convert the value to an integer with 'int()'. Afterwards add 1
+    # as the 'Date' data increments by 1 minute, which is the delta from update_date to evaluation_date
+    evaluation_row = int(sample_data['symbol'][sample_data['symbol']['Date'] == update_date].index.tolist()[0]) + 1
+
+    # Call the limit_divergence_to_accepted_row method
+    divergence_calculator_instance.limit_divergence_to_accepted_row(sample_data['symbol'], row_number=evaluation_row)
+
+    # Define the evaluation dataframe using the evaluation_date
+    evaluation_df = sample_data['symbol'].loc[sample_data['symbol']['Date'] == evaluation_date]
+
+    # Assert the last row entry in the column 'paired_divergence_opens_id' of the evaluation dataframe is equal to 0
+    assert evaluation_df['paired_divergence_opens_id'].iloc[-1] == 0
+
+
+def test_calculate_divergence(big_sample_dataframe):
+
+    evaluation_date = '2024-03-18 13:26:00.000'  # This is the date of the row whose divergence open value is being
+    # evaluated
+
+    # Create a sample dataframe via big_sample_dataframe
+    symbol = 'symbol'
+    sample_data = {symbol: big_sample_dataframe}
+
+    # Set the 'paired_divergence_opens_rsi' value == 99.99 ...
+    # ...(to force it larger than the value in the rsi column (max 100))
+    sample_data['symbol'].loc[sample_data['symbol']['Date'] == evaluation_date, 'paired_divergence_opens_rsi'] = 99.99
+
+    # Set the 'paired_divergence_opens_closing_price' value == 00.01 ...
+    # ...(to force it larger than the value in the rsi column (min 0))
+    sample_data['symbol'].loc[sample_data['symbol']['Date'] == evaluation_date,
+                              'paired_divergence_opens_closing_price'] = 00.01
+
+    # Create an instance of DivergenceCalculator
+    divergence_calculator_instance = technical_analysis_manager_dir.DivergenceCalculator()
+
+    # Get the row_number of the evaluation date in the dataframe
+    evaluation_row = int(sample_data['symbol'][sample_data['symbol']['Date'] == evaluation_date].index.tolist()[0])
+
+    # Call the calculate_divergence method
+    divergence_calculator_instance.calculate_divergence(sample_data['symbol'], row_number=evaluation_row)
+
+    # Define the evaluation dataframe using the evaluation_date
+    evaluation_df = sample_data['symbol'].loc[sample_data['symbol']['Date'] == evaluation_date]
+
+    # Assert the last row entry in the column 'is_divergence_high' of the evaluation dataframe is equal to 1
+    assert evaluation_df['is_divergence_high'].iloc[-1] == 1
 
 # Def Tests
 """
@@ -110,7 +200,7 @@ conditional of get_open_candidate
 
 -- Implementation: ingest large sample dataframe. Make assertion using expected row number(s)
 
--- Status: Open
+-- Status: Done
 
 Test 3: divergence calculator module: test_get_close_candidates_nearest_open.
 -- Test preparation. Find a row(s) number in the sample big dataframe where is_divergence_open_candidate == 1
@@ -120,7 +210,7 @@ is_divergence_open_candidate == 1, match the paired divergence open row
 
 -- Implementation: ingest large sample dataframe. Make assertion using expected row number(s)
 
--- Status: Open
+-- Status: Done
 
 Test 4: divergence calculator module: test_limit_divergence_to_accepted_row.
 -- Test preparation. Find a row(s) number in the sample big dataframe where is_divergence_open_candidate == 1
@@ -130,7 +220,7 @@ is_divergence_open_candidate == 1, match the paired divergence open row
 
 -- Implementation: ingest large sample dataframe. Make assertion using expected row number(s)
 
--- Status: Open
+-- Status: Done
 
 Test 5: divergence calculator module: test_calculate_divergence.
 -- Test preparation. Find a row(s) number in the sample big dataframe where the logical conditions to set
@@ -140,7 +230,7 @@ is_divergence_high == 1 are met
 
 -- Implementation: ingest large sample dataframe. Make assertion using expected row number(s)
 
--- Status: Open
+-- Status: Done
 
 Test 6: entry calculator module: test_get_entry_candidates.
 -- Test preparation. Find a row(s) number in the sample big dataframe where the logical conditions to set
@@ -150,7 +240,7 @@ is_entry_candidate == 1 are met (if last_row['rsi'] >= 65 and last_row['is_diver
 
 -- Implementation: ingest large sample dataframe. Make assertion using expected row number(s)
 
--- Status: Open
+-- Status: In progress
 
 Test 7: entry calculator module: test_get_entry_row.
 -- Test preparation. Find a row(s) number in the sample big dataframe where is_entry_candidate == 1
