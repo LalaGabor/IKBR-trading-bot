@@ -10,6 +10,6 @@ SQLAlchemy==2.0.28
 ta==0.11.0
 typing_extensions==4.10.0
 tzdata==2024.1
-dotenv==
+pytest-dotenv==0.5.2
 
 pytest~=8.1.1
