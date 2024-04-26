@@ -30,6 +30,17 @@ def realtime_data(bot_mock):
 # realtime_data, which is a mocked RealtimeDataManager class fixture object
 
 
+@pytest.fixture  # Use decorator function to turn following function definition into an pytest object
+def realtime_data_manager_factory():
+    def _realtime_data_manager(sample_data):
+        bot_mock = MagicMock()  # create magic mock object
+        symbol = 'symbol'  # Create dummy symbol string
+        bot_mock.df_dict = {symbol: sample_data}  # assign dummy data to key inside dictionary
+        return realtime_data_manager_dir.RealtimeDataManager(bot_mock)
+        # Create and return a mocked RealtimeDataManager instance
+    return _realtime_data_manager
+
+
 # Test case to ensure that the function handles exceptions from handle_realtime_bars
 def test_exception_raised_for_handle_realtime_bars(realtime_data):
     # Create a MagicMock object for the bar & symbol argument
@@ -48,22 +59,13 @@ def test_exception_raised_for_handle_realtime_bars(realtime_data):
 
         assert str(exception_info.value) == "Simulated Exception"
 
-@pytest.fixture  # Use decorator function to turn following function definition into an argument
-def realtime_data_manager_factory():
-    def _realtime_data_manager(sample_data):
-        bot_mock = MagicMock()  # create magic mock object
-        symbol = 'symbol'  # Create dummy symbol string
-        bot_mock.df_dict = {symbol: sample_data}  # assign dummy data to key inside dictionary
-        return realtime_data_manager_dir.RealtimeDataManager(bot_mock)
-        # Create and return a mocked DatabaseManager instance
-    return _realtime_data_manager
-
 
 # Test the behaviour of process_realtime_bars when receiving incoming tick data for a date that already exists in
 # the respective dataframe
 def test_process_realtime_bars_for_existing_date(realtime_data_manager_factory, big_sample_dataframe):
 
-    target_date = '2024-03-18 13:25:00.000'
+    target_date = '2024-03-18 13:25:00.000'  # This date already exists in the big_sample_dataframe
+    # Here a Bar object with a higher high_price is stored in sample_bar
     sample_bar = Bar(open_price=100.0, high_price=110.0, low_price=90.0, close_price=105.0, volume=1000, date=target_date)
 
     realtime_data_manager = realtime_data_manager_factory(big_sample_dataframe)
@@ -71,7 +73,10 @@ def test_process_realtime_bars_for_existing_date(realtime_data_manager_factory, 
     realtime_data_manager.process_realtime_bars(bar=sample_bar, symbol='symbol')
 
     # Check the high of the row related to the target date
+    # Learning: Why do we use this syntax?
     filtered_df = realtime_data_manager.bot.df_dict['symbol'].loc[realtime_data_manager.bot.df_dict['symbol']['Date'] == target_date]
+    # Learning: Why do we additionally need to access via iloc?
+    # Answer:
     assert filtered_df['High'].iloc[0] == 110.0
 
 

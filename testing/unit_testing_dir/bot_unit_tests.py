@@ -4,7 +4,6 @@ import pandas
 from ibapi.contract import Contract
 
 
-
 def test_dataframe_creation():
     symbol_list = ["symbol"]
     bot_mock = Bot(symbol_list,create_clients=False)

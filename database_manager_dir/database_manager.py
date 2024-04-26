@@ -3,7 +3,8 @@ from sqlalchemy import create_engine, MetaData, Table, text
 import numpy
 import pandas
 import traceback
-
+import os
+from dotenv import load_dotenv
 #Notes
 """
 -----------------
@@ -12,6 +13,7 @@ related to package version. Instead of doing a deeper debugging I used the mysql
 query to DB.
 -----------------
 """
+
 
 class DatabaseManager:
 
@@ -44,20 +46,21 @@ class DatabaseManager:
         except Exception as e:
             print(f"Error initializing Database Manager object: {e}")
             traceback.print_exc()
-    # define how to make a mysql engine
 
+    # Get the environment variables for instantiating connection to mysql DB
+    load_dotenv()
+
+    # Define how to make a mysql engine
     def get_mysql_engine(self):
         try:
-            user = 'root'
-            password = 'VZe1x2sF1HTyLp9r27Ka'
-            host = 'localhost'
-            port = 3306
-            database = 'trading_bot_debug'
+            user = os.getenv("DB_USER")
+            password = os.getenv("DB_PASSWORD")
+            host = os.getenv("HOST")
+            port = os.getenv("PORT")
+            database = os.getenv("DATABASE")
             engine = create_engine(f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}")
-            # Specify the authentication plugin in the connection string
-            #engine = create_engine(
-                #f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database_manager_dir}?auth_plugin=mysql_native_password")
             return engine
+
         except Exception as e:
             print(f"Error creating mysql engine: {e}")
             traceback.print_exc()
