@@ -1,3 +1,5 @@
+## TODO Scope out static variables (see: https://github.com/LalaGabor/IKBR-trading-bot/issues/30)
+## TODO Decouple Transform from Ingest logic  (see: https://github.com/LalaGabor/IKBR-trading-bot/issues/30)
 # IKBR-trading-bot
 Trading bot places orders, based on symbols, timeframe &amp; strategies
 
