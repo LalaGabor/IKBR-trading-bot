@@ -18,3 +18,6 @@ pip install -r requirements.txt
 ```shell
 python bot.py
 ```
+
+#TODO
+....to be continued
