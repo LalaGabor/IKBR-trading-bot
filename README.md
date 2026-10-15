@@ -1,6 +1,26 @@
-Disclaimer: This is an unmaintained fork of a private repo (which contains proprietary trading algorithms).
+Disclaimer: This is an incomplete fork of a private repo.
 DO NOT use this repository for trading purposes. Only for review.
-Note: At the time of forking, secrets, logging and exception handling were not yet implemented.
+
+Known Limitations (the code sucks):
+
+Security: Hardcoded credentials and potential SQL injection risks.
+
+Error Handling: Silently handled errors and excessive exception handling.
+
+Transactions: Inconsistent transaction handling and insufficient validation.
+
+Testing: Overreliance on unit tests and insufficient end-to-end coverage.
+
+Logging: No logging or execution tracing.
+
+Data Pipeline: Inefficient architecture, with pandas transformations that could be performed in SQL.
+
+Data Integrity: Insufficient validation and duplicate handling.
+
+Order Execution: Insufficient safeguards against duplicate orders and partial failures.
+
+Resilience: Limited retry, timeout, and recovery mechanisms.
+
 # IKBR-trading-bot
 Trading bot places orders, based on symbols, timeframe &amp; strategies
 
