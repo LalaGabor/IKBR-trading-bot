@@ -14,16 +14,16 @@ query to DB.
 -----------------
 """
 
-
+PASSWORD = clean_up_env
 class DatabaseManager:
 
-    def __init__(self, bot):
+    def __init__(self, bot, password):
         try:
             # using mysqlconnector due to sqlalchemy bug, see Notes
             self.conn = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password="VZe1x2sF1HTyLp9r27Ka",
+                password="password",
                 database="trading_bot_debug"
             )
 
