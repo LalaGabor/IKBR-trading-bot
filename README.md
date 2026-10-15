@@ -1,5 +1,6 @@
-## TODO Scope out static variables (see: https://github.com/LalaGabor/IKBR-trading-bot/issues/30)
-## TODO Decouple Transform from Ingest logic  (see: https://github.com/LalaGabor/IKBR-trading-bot/issues/30)
+Disclaimer: This is an unmaintained fork of a private repo (which contains proprietary trading algorithms).
+DO NOT use this repository for trading purposes. Only for review.
+Note: At the time of forking, secrets, logging and exception handling were not yet implemented.
 # IKBR-trading-bot
 Trading bot places orders, based on symbols, timeframe &amp; strategies
 
@@ -14,12 +15,9 @@ pip install -r requirements.txt
 
 2. Ensure the required applications are installed and configured
 * TWS Application and an IBKR account with the API enabled
-* MySQL database set up and running **#TODO consider Docker**
+* MySQL database set up and running
 
 3. Start the application
 ```shell
 python bot.py
 ```
-
-#TODO
-....to be continued
