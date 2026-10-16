@@ -1,7 +1,7 @@
 Disclaimer: This is an incomplete fork of a private repo.
 DO NOT use this repository for trading purposes. Only for review.
 
-Known Limitations (the code sucks):
+Known Limitations:
 
 Security: Hardcoded credentials and potential SQL injection risks.
 
